@@ -7,8 +7,9 @@ import numpy as np
 import glob
 import os
 import re
+import time
 
-DATASTORE = './testjobs/'
+DATASTORE = './JobsAcUk/'
 
 
 def find_files():
@@ -54,7 +55,8 @@ def read_html(list_of_adverts):
     big_data_list = []
 
     # Setting up html tag remover
-    clean = re.compile('<.*?>')
+    clean_tag = re.compile('<.*?>')
+    clean_lb = re.compile('\n')
 
     for current_ad in list_of_adverts:
         data = []
@@ -70,7 +72,7 @@ def read_html(list_of_adverts):
                 advert = BeautifulSoup(contents, 'lxml')
                 advert_title = str(advert.h1).lower()
                 # Remove html
-                advert_title = re.sub(clean, '', advert_title)
+                advert_title = re.sub(clean_tag, '', advert_title)
                 data.append(advert_title)
 
                 try:
@@ -88,12 +90,49 @@ def read_html(list_of_adverts):
                 except:
                     pass
 
+                try:
+                    role = advert.find('p', text='Type / Role:').find_next_sibling('p').text
+                    role = re.sub(clean_lb, '', role)
+                except:
+                    role = 0
+                    pass
+
+                try:
+                    try_role = advert.find('p', text='Type / Role:').find_next('a').text
+                    # Only replace the role if the previous role is zero (i.e. don't overwrite
+                    # a valid date from the last 'try'
+                    if role == 0:
+                        role = try_role
+                except:
+                    pass
+
+                try:
+                    test = advert.find('b', text='Type / Role:').find_next('div', {'class':'j-form-input ie-11-width'}).find_next('input').attrs['value']
+                    # Only replace the role if the previous role is zero (i.e. don't overwrite
+                    # a valid date from the last 'try'
+                    if role == 0:
+                        role = try_role
+                except:
+                    pass
+
+                try:
+                    test = advert.find('p', text='Type / Role:').find_next('div', {'class':'j-form-input ie-11-width'}).find_next('input').attrs['value']
+                    # Only replace the role if the previous role is zero (i.e. don't overwrite
+                    # a valid date from the last 'try'
+                    if role == 0:
+                        role = try_role
+                except:
+                    pass
+
                 data.append(date)
+                # Get the year for a separate column
+                data.append(str(date)[-4:])
+                data.append(role)
 
         big_data_list.append(data)
 
     df = pd.DataFrame.from_records(big_data_list)
-    df.columns = ['filename', 'job title', 'date']
+    df.columns = ['filename', 'job title', 'date', 'year', 'role']
 
     return df
 
@@ -113,6 +152,8 @@ def main():
     Main function to run program
     """
 
+    start_time = time.time()
+
     list_of_adverts = find_files()
 
     df = read_html(list_of_adverts)
@@ -122,8 +163,10 @@ def main():
     #print(df)
     #print(len(df))
     print(df['rse'].value_counts())
-
+    print(df['role'].value_counts())
     export_to_csv(df, './', 'processed_jobs', False)
+
+    print("--- %s seconds ---" % (time.time() - start_time))
 
 if __name__ == '__main__':
     main()

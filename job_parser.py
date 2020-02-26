@@ -11,7 +11,6 @@ import time
 
 DATASTORE = './JobsAcUk/'
 
-
 def find_files():
     """
     Goes through the DATASTORE directory and collects names of all the files
@@ -107,7 +106,7 @@ def read_html(list_of_adverts):
                     pass
 
                 try:
-                    test = advert.find('b', text='Type / Role:').find_next('div', {'class':'j-form-input ie-11-width'}).find_next('input').attrs['value']
+                    try_role = advert.find('b', text='Type / Role:').find_next('div', {'class':'j-form-input ie-11-width'}).find_next('input').attrs['value']
                     # Only replace the role if the previous role is zero (i.e. don't overwrite
                     # a valid date from the last 'try'
                     if role == 0:
@@ -116,7 +115,7 @@ def read_html(list_of_adverts):
                     pass
 
                 try:
-                    test = advert.find('p', text='Type / Role:').find_next('div', {'class':'j-form-input ie-11-width'}).find_next('input').attrs['value']
+                    try_role = advert.find('p', text='Type / Role:').find_next('div', {'class':'j-form-input ie-11-width'}).find_next('input').attrs['value']
                     # Only replace the role if the previous role is zero (i.e. don't overwrite
                     # a valid date from the last 'try'
                     if role == 0:
@@ -138,11 +137,20 @@ def read_html(list_of_adverts):
 
 
 def find_rse(df):
+    """
+    Searches the job titles to find titles of interest. Also conducts some logic so that "Research Software Engineer"
+    and "Software Engineer" aren't both flagged in the same job advert (RSE takes precendence here).
+    :param df: the parsed info from the job adverts
+    :return: a df with additional cols identifying rows of interest
+    """
 
-    df['rse'] = np.where(df['job title'].str.contains('research software engineer'), 'True', 'False')
+    # These find
+    df['software'] = np.where(df['job title'].str.contains('software'), True, False)
+    df['rse'] = np.where(df['job title'].str.contains('research software engineer'), True, False)
+    df['software developer'] = np.where(df['job title'].str.contains('software developer'), True, False)
+    df['software engineer'] = np.where(df['job title'].str.contains('software engineer'), True, False)
 
-#    df['rse'] = False
-#    df['rse'][df['job title'].str.contains('research software engineer')] = 'True'
+    df['refined software engineer'] = np.where((df['software engineer'] == True) & (df['rse'] == False), True, False)
 
     return df
 
@@ -162,7 +170,10 @@ def main():
 
     #print(df)
     #print(len(df))
+    print('rse')
     print(df['rse'].value_counts())
+    print('software')
+    print(df['software'].value_counts())
     print(df['role'].value_counts())
     export_to_csv(df, './', 'processed_jobs', False)
 

@@ -9,7 +9,7 @@ import os
 import re
 import time
 
-DATA = 'processed_jobs_test.csv'
+DATA = 'processed_jobs.csv'
 
 def import_csv_to_df(location, filename):
     """
@@ -41,6 +41,11 @@ def drop_bad_rows(df):
     # Drop all dates whose format doesn't allow easy extraction of the year
     df = df[df['year'].astype(str).str[0] == '2']
 
+    # Drop all job categories
+    df = df[df['date'] != '0']
+
+    df = df[(df['role'] == '0') | (df['role'] == 'Academic or Research') | (df['role'] == 'Professional or Managerial') | (df['role'] == 'Technical')]
+
     return df
 
 def analyse_results(df):
@@ -67,9 +72,7 @@ def analyse_results(df):
     results_df.columns = jobs_list
     results_df.sort_values(by=['year'], inplace=True)
 
-
-    print(results_df)
-    return
+    return results_df
 
 
 def main():
@@ -87,7 +90,11 @@ def main():
 
     export_to_csv(df, './', 'cleaned parsed jobs', False)
 
-    analyse_results(df)
+    results_df = analyse_results(df)
+
+    print(results_df)
+
+    export_to_csv(results_df, './', 'summary of analysis', False)
 
     print("--- %s seconds ---" % (time.time() - start_time))
 

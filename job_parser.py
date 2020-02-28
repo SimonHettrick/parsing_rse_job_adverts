@@ -8,8 +8,11 @@ import glob
 import os
 import re
 import time
+from datetime import datetime
 
 DATASTORE = './JobsAcUk/'
+RESULTSPATH = './results/'
+TITLE_TO_SEARCH = 'data steward'
 
 def find_files():
     """
@@ -40,6 +43,16 @@ def export_to_csv(df, location, filename, index_write):
     """
 
     return df.to_csv(location + filename + '.csv', index=index_write)
+
+
+def check_for_results_dir(resultsdir, jobtitle):
+
+    dirname = resultsdir + jobtitle
+
+    if not os.path.exists(dirname):
+        os.makedirs(dirname)
+
+    return dirname
 
 
 def read_html(list_of_adverts):
@@ -136,7 +149,7 @@ def read_html(list_of_adverts):
     return df
 
 
-def find_rse(df):
+def find_rse(df, job_title):
     """
     Searches the job titles to find titles of interest. Also conducts some logic so that "Research Software Engineer"
     and "Software Engineer" aren't both flagged in the same job advert (RSE takes precendence here).
@@ -146,11 +159,11 @@ def find_rse(df):
 
     # These find
     df['software'] = np.where(df['job title'].str.contains('software'), True, False)
-    df['rse'] = np.where(df['job title'].str.contains('research software engineer'), True, False)
+    df[job_title] = np.where(df['job title'].str.contains(job_title), True, False)
     df['software developer'] = np.where(df['job title'].str.contains('software developer'), True, False)
     df['software engineer'] = np.where(df['job title'].str.contains('software engineer'), True, False)
 
-    df['refined software engineer'] = np.where((df['software engineer'] == True) & (df['rse'] == False), True, False)
+    df['refined software engineer'] = np.where((df['software engineer'] == True) & (df[job_title] == False), True, False)
 
     return df
 
@@ -162,22 +175,39 @@ def main():
 
     start_time = time.time()
 
+    # Check for dir for results and if it doesn't exist, create it
+    resultsdir = check_for_results_dir(RESULTSPATH, TITLE_TO_SEARCH)
+    # Add a forward slash so I can use dirname as a path
+    resultsdir = resultsdir + '/'
+
+    print(resultsdir)
+
+    # Get filenames of all available jobs
     list_of_adverts = find_files()
 
+    # Parse jobs html and read into df
     df = read_html(list_of_adverts)
 
-    df = find_rse(df)
+    # Search the job titles and add cols to df that indicate where the title exists
+    df = find_rse(df, TITLE_TO_SEARCH)
 
-    #print(df)
-    #print(len(df))
-    print('rse')
-    print(df['rse'].value_counts())
-    print('software')
-    print(df['software'].value_counts())
-    print(df['role'].value_counts())
-    export_to_csv(df, './', 'processed_jobs', False)
+    # Logging
+    file = open(resultsdir + TITLE_TO_SEARCH + '_job_parser_log.txt', 'w')
+    logdate = datetime.now().strftime('%d/%m/%Y %H.%M.%S')
+    file.write('Date and time: ' + str(logdate) + '\n \n')
+    file.write('Looking at the job title: ' + TITLE_TO_SEARCH + '\n')
+    file.write('There are ' + str(len(df)) + ' job adverts in the sample' + '\n \n')
 
-    print("--- %s seconds ---" % (time.time() - start_time))
+    # Useful info to see whether the analysis has worked
+    print(len(df))
+    print(df[TITLE_TO_SEARCH].value_counts())
+
+    export_to_csv(df, resultsdir, ' processed_jobs', False)
+
+    print("--- %s seconds ---" % round((time.time() - start_time),1))
+    file.write('Processing took ' + str(round((time.time() - start_time),1)) + '\n')
+
+    file.close()
 
 if __name__ == '__main__':
     main()

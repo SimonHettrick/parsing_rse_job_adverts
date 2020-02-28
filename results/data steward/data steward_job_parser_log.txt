@@ -1,0 +1,6 @@
+Date and time: 28/02/2020 13.20.54
+ 
+Looking at the job title: data steward
+There are 401147 job adverts in the sample
+ 
+Processing took 4225.9

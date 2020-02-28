@@ -1,0 +1,5 @@
+Date and time: 28/02/2020 16.16.32
+ 
+There were: 401147adverts before cleaning
+And 298129adverts after cleaning
+This means: 103018adverts were missing information (such as the titleor date that would prevent them from being processed 

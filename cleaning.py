@@ -8,8 +8,12 @@ import glob
 import os
 import re
 import time
+from datetime import datetime
 
-DATA = 'processed_jobs.csv'
+RESULTSPATH = './results/'
+TITLE_TO_SEARCH = 'impact officer'
+DATANAME = 'processed_jobs.csv'
+
 
 def import_csv_to_df(location, filename):
     """
@@ -29,6 +33,21 @@ def export_to_csv(df, location, filename, index_write):
     """
 
     return df.to_csv(location + filename + '.csv', index=index_write)
+
+def check_for_results_dir(resultsdir, jobtitle):
+    """
+    Check if a dir for the results already exists and, if not, creates one
+    :param resultsdir: the dir in which the results should exist
+    :param jobtitle: the job title which will be used to create a subdir
+    :return: the resulting dirname that comes from joining results dir and jobtitle
+    """
+    dirname = resultsdir + jobtitle
+
+    if not os.path.exists(dirname):
+        os.makedirs(dirname)
+
+    return dirname
+
 
 def drop_bad_rows(df):
 
@@ -50,7 +69,8 @@ def drop_bad_rows(df):
 
 def analyse_results(df):
 
-    jobs_list = ['rse',	'software developer', 'software engineer']
+    #jobs_list = ['rse',	'software developer', 'software engineer']
+    jobs_list = [TITLE_TO_SEARCH]
 
     years_list = df['year'].unique()
 
@@ -60,6 +80,7 @@ def analyse_results(df):
         first_temp_df = df[df['year'] == current_year]
         results = [current_year]
         for current_job in jobs_list:
+            print(current_job)
             second_temp_df = first_temp_df[first_temp_df[current_job] == True]
             #print(second_temp_df)
             results.append(len(second_temp_df))
@@ -82,11 +103,32 @@ def main():
 
     start_time = time.time()
 
-    df = import_csv_to_df('./', DATA)
+    # Check for dir for results and if it doesn't exist, create it
+    resultsdir = check_for_results_dir(RESULTSPATH, TITLE_TO_SEARCH)
+    # Add a forward slash so I can use dirname as a path
+    resultsdir = resultsdir + '/'
 
-    print(len(df))
+    print(resultsdir + DATANAME)
+
+    df = import_csv_to_df(resultsdir, DATANAME)
+
+    # Logging
+    file = open(resultsdir + TITLE_TO_SEARCH + '_cleaning_log.txt', 'w')
+    logdate = datetime.now().strftime('%d/%m/%Y %H.%M.%S')
+    file.write('Date and time: ' + str(logdate) + '\n \n')
+
+
+    before_length = len(df)
     df = drop_bad_rows(df)
-    print(len(df))
+    after_length = len(df)
+
+    file.write('There were: ' + str(before_length) + 'adverts before cleaning\n')
+    file.write('And ' + str(after_length) + 'adverts after cleaning\n')
+    file.write('This means: ' + str(before_length - after_length) + 'adverts were missing information (such as the title'
+                                                                    'or date that would prevent them from being processed \n')
+
+    print('Before cleaning: ' + str(before_length))
+    print('After cleaning: ' + str(after_length))
 
     export_to_csv(df, './', 'cleaned parsed jobs', False)
 

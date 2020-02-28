@@ -12,7 +12,7 @@ from datetime import datetime
 
 DATASTORE = './JobsAcUk/'
 RESULTSPATH = './results/'
-TITLE_TO_SEARCH = 'data steward'
+TITLE_TO_SEARCH = 'impact officer'
 
 def find_files():
     """
@@ -46,7 +46,12 @@ def export_to_csv(df, location, filename, index_write):
 
 
 def check_for_results_dir(resultsdir, jobtitle):
-
+    """
+    Check if a dir for the results already exists and, if not, creates one
+    :param resultsdir: the dir in which the results should exist
+    :param jobtitle: the job title which will be used to create a subdir
+    :return: the resulting dirname that comes from joining results dir and jobtitle
+    """
     dirname = resultsdir + jobtitle
 
     if not os.path.exists(dirname):
@@ -158,12 +163,13 @@ def find_rse(df, job_title):
     """
 
     # These find
-    df['software'] = np.where(df['job title'].str.contains('software'), True, False)
+    df['impact'] = np.where(df['job title'].str.contains('impact'), True, False)
     df[job_title] = np.where(df['job title'].str.contains(job_title), True, False)
-    df['software developer'] = np.where(df['job title'].str.contains('software developer'), True, False)
-    df['software engineer'] = np.where(df['job title'].str.contains('software engineer'), True, False)
+    df['impact manager'] = np.where(df['job title'].str.contains('impact manager'), True, False)
 
-    df['refined software engineer'] = np.where((df['software engineer'] == True) & (df[job_title] == False), True, False)
+    #df['software developer'] = np.where(df['job title'].str.contains('software developer'), True, False)
+    #df['software engineer'] = np.where(df['job title'].str.contains('software engineer'), True, False)
+    #df['refined software engineer'] = np.where((df['software engineer'] == True) & (df[job_title] == False), True, False)
 
     return df
 
@@ -179,8 +185,6 @@ def main():
     resultsdir = check_for_results_dir(RESULTSPATH, TITLE_TO_SEARCH)
     # Add a forward slash so I can use dirname as a path
     resultsdir = resultsdir + '/'
-
-    print(resultsdir)
 
     # Get filenames of all available jobs
     list_of_adverts = find_files()
@@ -202,7 +206,7 @@ def main():
     print(len(df))
     print(df[TITLE_TO_SEARCH].value_counts())
 
-    export_to_csv(df, resultsdir, ' processed_jobs', False)
+    export_to_csv(df, resultsdir, 'processed_jobs', False)
 
     print("--- %s seconds ---" % round((time.time() - start_time),1))
     file.write('Processing took ' + str(round((time.time() - start_time),1)) + '\n')

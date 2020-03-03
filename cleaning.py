@@ -11,7 +11,7 @@ import time
 from datetime import datetime
 
 RESULTSPATH = './results/'
-TITLE_TO_SEARCH = 'impact officer'
+TITLE_TO_SEARCH = 'technician'
 DATANAME = 'processed_jobs.csv'
 
 

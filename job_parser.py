@@ -12,7 +12,7 @@ from datetime import datetime
 
 DATASTORE = './JobsAcUk/'
 RESULTSPATH = './results/'
-TITLE_TO_SEARCH = 'impact officer'
+TITLE_TO_SEARCH = 'technician'
 
 def find_files():
     """
@@ -165,8 +165,8 @@ def find_rse(df, job_title):
     # These find
     df['impact'] = np.where(df['job title'].str.contains('impact'), True, False)
     df[job_title] = np.where(df['job title'].str.contains(job_title), True, False)
-    df['impact manager'] = np.where(df['job title'].str.contains('impact manager'), True, False)
 
+    #df['impact manager'] = np.where(df['job title'].str.contains('impact manager'), True, False)
     #df['software developer'] = np.where(df['job title'].str.contains('software developer'), True, False)
     #df['software engineer'] = np.where(df['job title'].str.contains('software engineer'), True, False)
     #df['refined software engineer'] = np.where((df['software engineer'] == True) & (df[job_title] == False), True, False)

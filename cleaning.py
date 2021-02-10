@@ -34,6 +34,7 @@ def export_to_csv(df, location, filename, index_write):
 
     return df.to_csv(location + filename + '.csv', index=index_write)
 
+
 def check_for_results_dir(resultsdir, jobtitle):
     """
     Check if a dir for the results already exists and, if not, creates one

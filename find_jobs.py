@@ -109,23 +109,21 @@ def main():
     # Enrich data by searching job titles finding roles of interest
     df = find_jobs(df)
 
-    # Logging
-    file.write('There are ' + str(len(df)) + ' jobs with the job title of interes' + '\n \n')
-
     # Get dates working and sort by date
     df = date_and_sort(df)
-
 
     # Export data
     export_to_csv(df, RESULTSPATH, '2_named_processed_jobs', False)
 
     # Export just the data of interest
     df_interest=enhance(df)
+    # Logging
+    file.write('There are ' + str(len(df_interest)) + ' jobs with the job title of interest' + '\n \n')
     # Export enhanced data
     export_to_csv(df_interest, RESULTSPATH, '3_identified_jobs', False)
 
-    print("--- %s seconds ---" % round((time.time() - start_time),1))
-    file.write('Processing took ' + str(round((time.time() - start_time),1)) + '\n')
+    print("--- %s seconds ---" % round((time.time() - start_time)'s',1))
+    file.write('Processing took ' + str(round((time.time() - start_time) + 's',1)) + '\n')
 
     file.close()
 

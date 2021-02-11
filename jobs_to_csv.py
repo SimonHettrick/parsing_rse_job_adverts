@@ -10,7 +10,7 @@ import re
 import time
 from datetime import datetime
 
-DATASTORE = './JobsAcUk/'
+DATASTORE = './ALL_JOBS_18-01-2021/'
 RESULTSPATH = './results/'
 
 def find_files():

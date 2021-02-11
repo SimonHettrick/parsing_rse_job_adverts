@@ -10,7 +10,7 @@ import re
 import time
 from datetime import datetime
 
-DATASTORE = './smalltestjobs/'
+DATASTORE = './JobsAcUk/'
 RESULTSPATH = './results/'
 
 def find_files():
@@ -50,11 +50,14 @@ def read_html(list_of_adverts):
         """
         try:
             title = advert.find('h1').text
+            if len(title) == 0:
+                title = 'no_data'
         except:
-            title = 0
+            title = 'no_data'
             pass
 
-        if title !=0:
+        if title != 'no_data':
+            title = re.sub(clean_lb, '', title)
             title = title.lower()
 
         return title
@@ -63,20 +66,20 @@ def read_html(list_of_adverts):
     def find_date(advert):
         """
         Find the date on which the advert was placed
-        :param advert: the beatiful soup parsed version of an advert
+        :param advert: the beautiful soup parsed version of an advert
         :return: a date on which the advert was placed
         """
         try:
             date = advert.find('td', text='Placed on:').find_next_sibling('td').text
         except:
-            date = 0
+            date = 'no_data'
             pass
 
         try:
             try_date = advert.find('th', text='Placed On:').find_next_sibling('td').text
             # Only replace the date if the previous date is zero (i.e. don't overwrite
             # a valid date from the last 'try'
-            if date == 0:
+            if date == 'no_data':
                 date = try_date
         except:
             pass
@@ -94,14 +97,14 @@ def read_html(list_of_adverts):
             role = advert.find('p', text='Type / Role:').find_next_sibling('p').text
             role = re.sub(clean_lb, '', role)
         except:
-            role = 0
+            role = 'no_data'
             pass
 
         try:
             try_role = advert.find('p', text='Type / Role:').find_next('a').text
             # Only replace the role if the previous role is zero (i.e. don't overwrite
             # a valid date from the last 'try'
-            if role == 0:
+            if role == 'no_data':
                 role = try_role
         except:
             pass
@@ -112,7 +115,7 @@ def read_html(list_of_adverts):
                 'input').attrs['value']
             # Only replace the role if the previous role is zero (i.e. don't overwrite
             # a valid date from the last 'try'
-            if role == 0:
+            if role == 'no_data':
                 role = try_role
         except:
             pass
@@ -123,12 +126,13 @@ def read_html(list_of_adverts):
                 'input').attrs['value']
             # Only replace the role if the previous role is zero (i.e. don't overwrite
             # a valid date from the last 'try'
-            if role == 0:
+            if role == 'no_data':
                 role = try_role
         except:
             pass
 
-        if role !=0:
+        if role !='no_data':
+            role = re.sub(clean_lb, '', role)
             role = role.lower()
 
         return role
@@ -142,12 +146,12 @@ def read_html(list_of_adverts):
         """
         try:
             organisation = advert.find('h3').text.split('-',1)[0]
-
         except:
-            organisation = 0
+            organisation = 'no_data'
             pass
 
-        if organisation !=0:
+        if organisation !='no_data':
+            organisation = re.sub(clean_lb, '', organisation)
             organisation = organisation.lower()
 
         return organisation
@@ -162,11 +166,20 @@ def read_html(list_of_adverts):
         try:
             location = advert.find('td', text='Location:').find_next_sibling('td').text
         except:
-            location = 0
+            location = 'no_data'
             pass
 
-        if location !=0:
+        try:
+            try_location = advert.find('th', text='Location:').find_next_sibling('td').text
+            if location == 'no_data':
+                location = try_location
+        except:
+            pass
+
+        if location !='no_data':
+            location = re.sub(clean_lb, '', location)
             location = location.lower()
+            location = location.strip()
 
         return location
 
@@ -232,20 +245,19 @@ def main():
     # Get filenames of all available jobs
     list_of_adverts = find_files()
 
-    # Parse jobs html and read into df
-    df = read_html(list_of_adverts)
-
     # Logging
     file = open(RESULTSPATH + 'job_parser_log.txt', 'w')
     logdate = datetime.now().strftime('%d/%m/%Y %H.%M.%S')
     file.write('Date and time: ' + str(logdate) + '\n \n')
-    file.write('There are ' + str(len(df)) + ' job adverts in the sample' + '\n \n')
+    file.write('There were ' + str(len(list_of_adverts)) + ' job adverts reviewed in the sample' + '\n \n')
 
-    # Useful info to see whether the analysis has worked
-    print(len(df))
-    #print(df[TITLE_TO_SEARCH].value_counts())
+    # Parse jobs html and read into df
+    df = read_html(list_of_adverts)
 
-    export_to_csv(df, RESULTSPATH, 'processed_jobs', False)
+    # Logging
+    file.write('There were ' + str(len(df)) + ' job adverts were parsed into the data file' + '\n \n')
+
+    export_to_csv(df, RESULTSPATH, '1_processed_jobs', False)
 
     print("--- %s seconds ---" % round((time.time() - start_time),1))
     file.write('Processing took ' + str(round((time.time() - start_time),1)) + '\n')

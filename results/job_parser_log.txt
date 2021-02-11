@@ -1,5 +1,7 @@
-Date and time: 10/02/2021 16.46.46
+Date and time: 11/02/2021 12.09.20
  
-There are 47 job adverts in the sample
+There were 401144 job adverts reviewed in the sample
  
-Processing took 0.3
+There were 401144 job adverts were parsed into the data file
+ 
+Processing took 2677.7

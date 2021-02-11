@@ -1,0 +1,9 @@
+Date and time: 11/02/2021 14.40.01
+ 
+There were 401144 parsed job adverts
+ 
+There are 401143 jobs with job titles
+ 
+There are 401143 jobs with the job title of interes
+ 
+Processing took 35.8

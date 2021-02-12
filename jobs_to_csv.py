@@ -10,7 +10,7 @@ import re
 import time
 from datetime import datetime
 
-DATASTORE = './ALL_JOBS_18-01-2021/'
+DATASTORE = './ALL_JOBS_18-01-2021/ALL_JOBS_18-01-2021/'
 RESULTSPATH = './results/'
 
 def find_files():
@@ -77,7 +77,7 @@ def read_html(list_of_adverts):
 
         try:
             try_date = advert.find('th', text='Placed On:').find_next_sibling('td').text
-            # Only replace the date if the previous date is zero (i.e. don't overwrite
+            # Only replace the date if the previous date is no_data (i.e. don't overwrite
             # a valid date from the last 'try'
             if date == 'no_data':
                 date = try_date
@@ -90,7 +90,7 @@ def read_html(list_of_adverts):
     def find_role(advert):
         """
         Find the role (i.e. the job family) in the advert
-        :param advert: the beatiful soup parsed version of an advert
+        :param advert: the beautiful soup parsed version of an advert
         :return: the role from the advert
         """
         try:
@@ -209,8 +209,13 @@ def read_html(list_of_adverts):
                 #Extract info I want
                 title = find_title(advert)
                 date = find_date(advert)
-                # Extract year directly from date variable
-                year = str(date)[-4:]
+
+                # Extract year directly from date variable (there's two forms of date, hence the if)
+                if '-' in date:
+                    year = str(date)[:4]
+                else:
+                    year = str(date)[-4:]
+
                 role = find_role(advert)
                 organisation = find_organisation(advert)
                 location = find_location(advert)

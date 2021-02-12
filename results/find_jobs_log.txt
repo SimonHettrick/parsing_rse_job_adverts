@@ -1,9 +1,11 @@
-Date and time: 11/02/2021 14.40.01
+Date and time: 12/02/2021 12.43.44
  
-There were 401144 parsed job adverts
+There were 442062 parsed job adverts
  
-There are 401143 jobs with job titles
+There are 442061 jobs with job titles
  
-There are 401143 jobs with the job title of interes
+There are 442061 jobs with a full complement of data
  
-Processing took 35.8
+There are 336 jobs with the job title of interest
+ 
+Processing took 3.9

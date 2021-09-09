@@ -72,7 +72,7 @@ def find_jobs(df):
     :return: a df with additional cols identifying rows of interest
     """
 
-    # These find
+    # These find the rows where the job title matches the search term and creates a new column marked as True
     df['research software engineer'] = np.where(df['job title'].str.contains('research software engineer'), True, False)
 
 

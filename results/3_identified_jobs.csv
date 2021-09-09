@@ -1,4 +1,5 @@
 filename,job title,date,year,role,organisation,location,research software engineer
+CHE804,research software engineer,1st July 2021,2021,no_data,university of exeter            ,exeter,True
 BRC232,research software engineer,25th March 2019,2019,academic or research,university of leeds            ,leeds,True
 BBG511,research software engineer,10th May 2017,2017,academic or research,university of southampton ,southampton,True
 BBY646,research software engineer (research associate),8th June 2017,2017,academic or research,cardiff university ,cardiff,True
@@ -6,7 +7,9 @@ AOH363,research software engineer,2nd August 2016,2016,academic or research,univ
 AMR609,research software engineer (knowledge transfer partnership associate),22nd December 2015,2015,academic or research,king's college london ,london,True
 BFP216,research software engineering specialist,10th November 2017,2017,professional or managerial,university of leicester ,leicester,True
 BFO432,senior research software engineer,9th November 2017,2017,academic or research,imperial college london ,london,True
+CER600,senior research associate (research software engineer),12th March 2021,2021,no_data,university of bristol            ,bristol,True
 BQU755,research software engineer (workflows for computational discovery of porous materials) grade 7,12th March 2019,2019,academic or research,university of liverpool            ,liverpool,True
+CFB431,head of research software engineering,30th March 2021,2021,no_data,university of exeter            ,exeter,True
 ANR690,research software engineer,18th May 2016,2016,academic or research,stfc ,warrington,True
 BSJ389,research software engineer (fixed-term post),20th May 2019,2019,academic or research,university of bath            ,bath,True
 AUL729,d48655t - research software engineer (linguacuisine),26th September 2016,2016,academic or research,newcastle university ,newcastle upon tyne,True
@@ -20,22 +23,30 @@ BZO192,research software engineer - imaging,24th March 2020,2020,no_data,rosalin
 BHO040,research software engineering associate in high performing computing,6th February 2018,2018,academic or research,university of oxford ,oxford,True
 ALZ256,research software engineer,11th September 2015,2015,technical,university of sheffield ,sheffield,True
 AVN478,research software engineer: data analytics,15th November 2016,2016,academic or research,durham university ,durham,True
+CIL780,research software engineer,18th August 2021,2021,no_data,university of oxford            ,oxford,True
 AUL743,d48626t - research software engineer (prototyping),26th September 2016,2016,academic or research,newcastle university ,newcastle upon tyne,True
+CDZ867,research software engineer and systems developer hpc (high performance computing) or research software engineer systems developer hpc (trainee),5th February 2021,2021,no_data,university of east anglia            ,norwich,True
 BIQ916,research software engineer in medical device software engineering,23rd March 2018,2018,academic or research,the university of edinburgh ,edinburgh,True
 BYF625,research software engineer (rse),24th January 2020,2020,no_data,marine biological association of the uk,plymouth,True
 BVK921,research software engineer,20th September 2019,2019,academic or research,university of oxford            ,oxford,True
 BXS559,senior research software engineer,3rd January 2020,2020,academic or research,ucl            ,london,True
+CGD136,research software engineer in data visualization,20th May 2021,2021,no_data,university of oxford            ,oxford,True
 CAW698,research software engineer,28th July 2020,2020,,plymouth marine laboratory,plymouth,True
 CCH479,research software engineer / senior research software engineer,30th October 2020,2020,no_data,king's college london            ,london,True
+CGC325,research software engineer (340694),19th May 2021,2021,no_data,university of strathclyde            ,glasgow,True
 BOC332,research software engineer,9th November 2018,2018,academic or research,university of cambridge            ,cambridge,True
 CCF346,research software engineer,26th October 2020,2020,no_data,london school of hygiene & tropical medicine            ,london,True
 BRD614,research software engineer (rse) (101392-039),27th March 2019,2019,academic or research,university of warwick            ,coventry,True
+CFI618,research software engineer,13th April 2021,2021,no_data,university of oxford            ,oxford,True
 BVJ637,research software engineer,18th September 2019,2019,no_data,stfc ,"didcot, harwell, oxford",True
 CBE968,research software engineer,18th August 2020,2020,no_data,the university of manchester            ,manchester,True
 BXR887,senior research software engineer - health data specialist,2nd January 2020,2020,academic or research,ucl            ,london,True
 AXK916,senior research software engineer,17th February 2017,2017,academic or research,the university of manchester ,manchester,True
 BTZ000,prism research software engineer,22nd July 2019,2019,academic or research,royal northern college of music,manchester,True
+CDZ661,research software engineer - ktp associate,8th February 2021,2021,,queen's university belfast ,belfast,True
 CAJ926,hpc consultant / research software engineer (fixed term),16th June 2020,2020,no_data,university of cambridge            ,cambridge,True
+CHI808,research software engineer,7th July 2021,2021,no_data,ucl            ,london,True
+CDS981,research software engineer,21st January 2021,2021,no_data,university of oxford            ,oxford,True
 CDF748,research data scientist/research software engineer,17th December 2020,2020,no_data,the alan turing institute,london,True
 BDG175,research software engineer: optimisation and decision-making,1st August 2017,2017,academic or research,university of sheffield ,sheffield,True
 BUI300,research software engineer - front end developer,5th August 2019,2019,academic or research,university of oxford            ,oxford,True
@@ -52,6 +63,8 @@ CBE684,research software engineer in distributed and intelligent social computin
 CAG322,research software engineer/scientist and technical architect,3rd June 2020,2020,,stfc ,"didcot, oxford",True
 CAU674,research fellow / research software engineer,21st July 2020,2020,no_data,the university of edinburgh,edinburgh,True
 AMZ749,research software engineer,12th February 2016,2016,professional or managerial,the university of manchester ,manchester,True
+CEQ167,research software engineer- cloud computing,10th March 2021,2021,no_data,the james hutton institute,edinburgh,True
+CHW811,research software engineer dpuk,27th July 2021,2021,no_data,swansea university            ,swansea,True
 AXE395,research software engineer,7th February 2017,2017,academic or research,university of sheffield ,sheffield,True
 BFT709,research software engineer,16th November 2017,2017,academic or research,university of southampton ,southampton,True
 BUT485,research software engineer (research associate),22nd August 2019,2019,academic or research,cardiff university            ,cardiff,True
@@ -65,9 +78,14 @@ CDA539,senior research software engineer (pool),9th December 2020,2020,no_data,u
 BGG347,research software engineer in mobile computing,6th December 2017,2017,academic or research,university of sheffield ,sheffield,True
 BCX418,research assistant/associate (research software engineer) (d76606r),19th July 2017,2017,academic or research,newcastle university ,newcastle upon tyne,True
 BWV774,senior research software engineer,19th November 2019,2019,academic or research,the university of manchester            ,manchester,True
+CII122,research data scientist / research software engineer,12th August 2021,2021,no_data,the alan turing institute            ,london,True
+CES069,senior research software engineer,14th March 2021,2021,no_data,university of oxford            ,oxford,True
 CBF835,research assistant (research software engineer)(319370),20th August 2020,2020,no_data,university of strathclyde            ,glasgow,True
 CDH244,research software engineer in health data science,21st December 2020,2020,no_data,king's college london            ,london,True
+CEA994,research software engineer,9th February 2021,2021,no_data,london school of hygiene & tropical medicine            ,london,True
 CDF749,junior research data scientist/research software engineer,17th December 2020,2020,no_data,the alan turing institute,london,True
+CGU567,research software engineers,17th June 2021,2021,no_data,rosalind franklin institute            ,harwell,True
+CDV321,senior research software engineer,29th January 2021,2021,no_data,university of oxford            ,oxford,True
 BSP752,research software engineer,30th May 2019,2019,academic or research,durham university            ,durham,True
 BTU365,research software engineer (research associate),15th July 2019,2019,academic or research,cardiff university            ,cardiff,True
 BYU113,mineral magnetism research software engineer,18th February 2020,2020,academic or research,the university of edinburgh            ,edinburgh,True
@@ -77,6 +95,8 @@ ALW865,research software engineer,28th August 2015,2015,professional or manageri
 BBF770,research software engineering team lead,9th May 2017,2017,academic or research,imperial college london ,london,True
 BSO975,research software engineer,29th May 2019,2019,academic or research,stfc ,cheshire,True
 BRU242,research software engineer - front end developer,24th April 2019,2019,academic or research,university of oxford            ,oxford,True
+CGL219,full or part-time senior research software engineer in cheri operating systems and toolchain (fixed term),2nd June 2021,2021,no_data,university of cambridge            ,cambridge,True
+CEV773,research software engineer audio-visual ai,24th March 2021,2021,no_data,university of surrey            ,guildford,True
 AYR546,research software engineer (research associate) bio,13th April 2017,2017,academic or research,bangor university ,bangor,True
 CDE966,research software engineer,17th December 2020,2020,no_data,university of glasgow            ,glasgow,True
 BPL166,"research software engineer, exceed",11th January 2019,2019,academic or research,university of leicester            ,leicester,True
@@ -91,17 +111,28 @@ BUD468,research software engineer,29th July 2019,2019,academic or research,stfc 
 CBI205,research software engineer and advanced computing systems administrator,27th August 2020,2020,no_data,university of bristol            ,bristol,True
 BTU516,research software engineer - gravitational physics and astronomy,15th July 2019,2019,academic or research,cardiff university            ,cardiff,True
 CDB737,research software engineer,11th December 2020,2020,no_data,newcastle university            ,newcastle,True
+CII191,research software engineer,12th August 2021,2021,no_data,swansea university            ,swansea,True
 AYR552,research software engineer (research associate) stem,13th April 2017,2017,academic or research,bangor university ,bangor,True
+CFM119,senior research software engineer - cloud and linux,20th April 2021,2021,,rosalind franklin institute,harwell,True
+CIV723,research software engineer (computational mechanics),2nd September 2021,2021,no_data,university of leeds            ,leeds,True
 BXI951,research software engineer,10th December 2019,2019,academic or research,university of york            ,york,True
 BOW030,research software engineer - d178425t,20th December 2018,2018,academic or research,newcastle university            ,newcastle upon tyne,True
+CEB353,translational imaging research software engineer,9th February 2021,2021,no_data,university of oxford            ,oxford,True
 BPW393,research software engineer,30th January 2019,2019,academic or research,imperial college london            ,london,True
 BMR948,research software engineer (fixed term),11th September 2018,2018,academic or research,university of bath            ,bath,True
+CFK670,research software engineer,16th April 2021,2021,no_data,university of glasgow            ,glasgow,True
+CHC697,research software engineer in data visualization,29th June 2021,2021,no_data,university of oxford            ,oxford,True
+CEX461,research software engineer in intelligent distributed iot systems,23rd March 2021,2021,no_data,university of leeds            ,leeds,True
 BGO137,research software engineer in optimization and decision-making,19th December 2017,2017,academic or research,university of sheffield ,sheffield,True
 CAK356,research software engineering specialist,17th June 2020,2020,no_data,university of leicester            ,leicester,True
+CIW462,research software engineer (ai),3rd September 2021,2021,no_data,university of leeds            ,leeds,True
+CGC881,senior research software engineer x2 (103926-0521),20th May 2021,2021,no_data,university of warwick            ,coventry,True
 BDG755,global change research software engineer,2nd August 2017,2017,academic or research,university of edinburgh ,edinburgh,True
 CBK553,head of research software engineering,3rd September 2020,2020,no_data,university of cambridge            ,cambridge,True
+CHP419,bioss 09-21 - research software engineer- cloud computing,16th July 2021,2021,no_data,the james hutton institute,edinburgh,True
 ANE742,research software engineer,10th March 2016,2016,academic or research,durham university ,durham,True
 BPD584,digital humanities research software engineer,21st December 2018,2018,academic or research,british library            ,london,True
+CFB936,senior research software engineer,31st March 2021,2021,no_data,uk atomic energy authority ukaea,culham,True
 BCK685,research software engineer,28th June 2017,2017,academic or research,bournemouth university ,poole,True
 AYL632,senior research software engineer (research fellow),4th April 2017,2017,academic or research,cardiff university ,cardiff,True
 AYQ313,research software engineer,12th April 2017,2017,academic or research,university of bath ,bath,True
@@ -110,19 +141,23 @@ BOW259,senior research software engineer,12th December 2018,2018,professional or
 AMM982,research software engineer,26th November 2015,2015,academic or research,king's college london ,london,True
 ANJ536,research software engineer,6th April 2016,2016,academic or research,university of liverpool ,liverpool,True
 BBE926,senior research software engineer (supercomputing wales),8th May 2017,2017,academic or research,swansea university ,swansea,True
+CDY541,senior research software engineer- cloud computing,3rd February 2021,2021,no_data,the james hutton institute,edinburgh,True
 ALK840,research software engineer,23rd June 2015,2015,academic or research,institute of cancer research ,sutton,True
 AXW017,senior research software engineer,8th March 2017,2017,academic or research,uk atomic energy authority ukaea ,"culham, oxford",True
 BSP946,research software engineer (rse),31st May 2019,2019,academic or research,university of sheffield            ,sheffield,True
 BBL695,d68385t - senior research software engineer (urban observatory),18th May 2017,2017,academic or research,newcastle university ,newcastle upon tyne,True
 BKZ652,research software engineer in mobile computing,2018-07-03,2018,academic or research,university of sheffield ,sheffield,True
 BYD629,research software engineer,21st January 2020,2020,no_data,the national archives ,london borough of richmond upon thames,True
+CHU304,research software engineer - behaviour and neural data,23rd July 2021,2021,no_data,ucl            ,london,True
 BYT073,senior research software engineer,17th February 2020,2020,academic or research,the university of manchester            ,manchester,True
 AUD286,research software engineering specialists,9th March 2016,2016,professional or managerial,university of leicester ,leicester,True
 BYK834,research software engineer,3rd February 2020,2020,academic or research,university of sheffield            ,sheffield,True
+CHV575,research software engineer associate,26th July 2021,2021,no_data,university of york            ,york,True
 BBB533,senior research software engineer,2nd May 2017,2017,professional or managerial,loughborough university ,loughborough,True
 AOB336,research software engineer,1st July 2016,2016,academic or research,university of southampton ,southampton,True
 BTD238,research software engineer,20th June 2019,2019,academic or research,king's college london            ,london,True
 BSG168,research software engineers,15th May 2019,2019,academic or research,king's college london            ,london,True
+CHL903,research software engineer in argument technology,12th July 2021,2021,no_data,university of dundee            ,dundee,True
 BVS100,research software engineer - data,2nd October 2019,2019,academic or research,rosalind franklin institute,harwell,True
 BPZ998,research software engineer,5th February 2019,2019,technical,university of bath            ,bath,True
 BIK036,research software engineer (3 positions - fixed-term),13th March 2018,2018,academic or research,university of nottingham ,nottingham,True
@@ -130,9 +165,12 @@ BUF471,research data scientist/research software engineer,1st August 2019,2019,n
 BRY122,research data scientist/research software engineer,30th April 2019,2019,academic or research,the alan turing institute,london,True
 AOI656,research software engineer associate - exploiting the exascale,9th August 2016,2016,academic or research,university of oxford ,oxford,True
 BXH935,research software engineer (data science),9th December 2019,2019,academic or research,university of leeds            ,leeds,True
+CEK506,translational imaging research software engineer,26th February 2021,2021,no_data,university of oxford            ,oxford,True
 BWK760,senior research software engineer,1st November 2019,2019,academic or research,northumbria university            ,newcastle upon tyne,True
+CIG579,research software engineer,10th August 2021,2021,no_data,university of reading            ,reading,True
 CBC629,research software engineer,12th August 2020,2020,no_data,cardiff university            ,cardiff,True
 AMP912,research software engineer (erc),17th December 2015,2015,academic or research,open university ,milton keynes,True
+CFB470,research software engineer (semantic web apis) - ktp associate - bt,5th April 2021,2021,,queen's university belfast ,belfast,True
 BYL531,research software engineer - interfacing with wearables,4th February 2020,2020,academic or research,newcastle university,newcastle upon tyne,True
 BQE185,senior research software engineer (rse) - assistant director of rse sheffield,12th February 2019,2019,academic or research,university of sheffield            ,sheffield,True
 BVJ641,senior research software engineer,18th September 2019,2019,no_data,stfc ,"didcot, harwell, oxford",True
@@ -142,6 +180,7 @@ BRO073,bioinformatics research software engineer,12th April 2019,2019,academic o
 BPC281,research software engineer,20th December 2018,2018,technical,the university of manchester            ,manchester,True
 BXB800,research software engineer (research associate),28th November 2019,2019,academic or research,cardiff university            ,cardiff,True
 BUV847,research software engineer,27th August 2019,2019,academic or research,university of leicester            ,leicester,True
+CIF606,senior research software engineer (pool),9th August 2021,2021,no_data,university of birmingham            ,birmingham,True
 BHL213,bioinformatics scientist/research software engineer,1st February 2018,2018,academic or research,university of dundee ,dundee,True
 BZR866,research software engineer (web development),3rd April 2020,2020,no_data,imperial college london            ,london,True
 AMZ811,research software engineer,12th February 2016,2016,professional or managerial,the university of manchester ,manchester,True
@@ -159,26 +198,35 @@ BLB265,senior research software engineer,2018-07-05,2018,academic or research,uk
 BFV358,research software engineer - d94705t,20th November 2017,2017,academic or research,newcastle university ,newcastle upon tyne,True
 BMM870,digital research scientist - research software engineer (fixed term project based),3rd September 2018,2018,no_data,university of nottingham            ,nottingham,True
 BVS101,research software engineer - hpc and cloud,2nd October 2019,2019,academic or research,rosalind franklin institute,harwell,True
+CHI473,senior research software engineer,7th July 2021,2021,no_data,uk atomic energy authority ukaea            ,culham,True
+CIL333,research software engineer 			,17th August 2021,2021,no_data,university of oxford            ,oxford,True
 BBF844,supercomputing wales – research software engineer (research associate),9th May 2017,2017,academic or research,cardiff university ,cardiff,True
+CGA807,research software engineer,17th May 2021,2021,no_data,university of bath            ,bath,True
 ANM463,research associate/research software engineer in massive scale complex systems simulation with accelerated computing,20th April 2016,2016,academic or research,university of sheffield ,sheffield,True
 AYR840,research software engineer,13th April 2017,2017,academic or research,cardiff university ,cardiff,True
 BRG485,research software engineer,1st April 2019,2019,academic or research,stfc ,warrington,True
 BYR866,research software engineer,17th February 2020,2020,academic or research,ulster university            ,londonderry,True
 CAC441,research software engineer,19th May 2020,2020,no_data,swansea university            ,swansea,True
 AUD990,research software engineering specialist,5th April 2016,2016,professional or managerial,university of leicester ,leicester,True
+CEX547,research software engineer,23rd March 2021,2021,no_data,university of oxford            ,oxford,True
 BLX158,research software engineer in healthcare data analytics solutions,8th August 2018,2018,no_data,university of leeds            ,leeds,True
 BFH267,research software engineer in computer-assisted fetal therapy,30th October 2017,2017,academic or research,university college london ,london,True
 BTW130,senior research software engineer,17th July 2019,2019,academic or research,uk atomic energy authority ukaea,culham,True
+CEW361,research software engineer (340694),22nd March 2021,2021,no_data,university of strathclyde            ,glasgow,True
+CEI278,faculty high performance computing manager & research software engineering project manager,23rd February 2021,2021,no_data,university of cambridge            ,cambridge,True
 AWX124,research software engineer (research associate),25th January 2017,2017,academic or research,cardiff university ,cardiff,True
 BED243,research software engineer: optimisation and decision-making,8th September 2017,2017,academic or research,university of sheffield ,sheffield,True
 AJL026,research software engineer in computational biology,19th August 2014,2014,academic or research,university of oxford ,oxford,True
 BAZ095,research software engineer – gravitational physics and astonomy,27th April 2017,2017,academic or research,cardiff university ,cardiff,True
 BGQ554,research software engineer in high performance multi agent simulation,22nd December 2017,2017,academic or research,university of sheffield ,sheffield,True
 BRW895,machine learning in medical imaging research software engineer,29th April 2019,2019,academic or research,university of oxford            ,oxford,True
+CDU625,research software engineer,26th January 2021,2021,no_data,university of bath            ,bath,True
 BFO659,research software engineer,9th November 2017,2017,academic or research,university of nottingham ,nottingham,True
 BSL279,research software engineer/database programmer,22nd May 2019,2019,academic or research,university of oxford            ,oxford,True
 CAG255,research software engineer,3rd June 2020,2020,no_data,university of plymouth            ,plymouth,True
 ANR235,digital preservation specialist - technical officer/research software engineer (polonsky fellow),16th May 2016,2016,technical,university of oxford ,oxford,True
+CHD149,research software engineer (designing future wheat),30th June 2021,2021,no_data,earlham institute            ,norwich,True
+CFJ868,research software engineer in data visualization,15th April 2021,2021,no_data,university of oxford            ,oxford,True
 BPV324,research software engineer,29th January 2019,2019,academic or research,british library,london,True
 BPO695,research software engineer (2 posts),17th January 2019,2019,academic or research,university of oxford            ,oxford,True
 BZT370,hutton 14-20 - junior research software engineer,15th April 2020,2020,no_data,the james hutton institute            ,dundee,True
@@ -187,12 +235,15 @@ CDH966,junior research software engineer - hpc and cloud,22nd December 2020,2020
 AKO202,research software engineer lead,16th February 2015,2015,technical,the francis crick institute ,london,True
 CBA338,research software engineer,6th August 2020,2020,no_data,university of oxford            ,oxford,True
 AWL142,d56215t - senior research software engineer,4th January 2017,2017,technical,newcastle university ,newcastle upon tyne,True
+CEU417,research software engineer (fixed term),17th March 2021,2021,no_data,university of cambridge            ,cambridge,True
 BWO371,research software engineer for railway system integration,7th November 2019,2019,academic or research,university of leeds            ,leeds,True
 BVJ491,"research software engineer (full time, fixed term)",18th September 2019,2019,academic or research,university of bath            ,bath,True
 BUE273,senior research software engineer (stretch),30th July 2019,2019,academic or research,the open university            ,milton keynes,True
 BWU647,research software engineer,18th November 2019,2019,academic or research,manchester metropolitan university            ,manchester,True
 BHH204,research software engineer,26th January 2018,2018,academic or research,university of birmingham ,birmingham,True
+CHD113,senior research software engineer,30th June 2021,2021,no_data,the university of manchester            ,manchester,True
 AMO779,research software engineer (knowledge transfer partnership associate),7th December 2015,2015,academic or research,king's college london ,london,True
+CHC731,research software engineer (designing future wheat),29th June 2021,2021,no_data,nbi partnership            ,norwich,True
 BQQ153,research software engineer,4th March 2019,2019,academic or research,university of oxford            ,oxford,True
 BUF005,research software engineer,31st July 2019,2019,academic or research,university of southampton            ,southampton,True
 AYE210,scientific programmer / research software engineer,29th March 2017,2017,academic or research,queen mary university of london ,city of london,True
@@ -201,6 +252,7 @@ ANA818,research software engineer,18th February 2016,2016,professional or manage
 BLX122,research software engineer,8th August 2018,2018,no_data,university of southampton            ,southampton,True
 BIV969,analysis research software engineer,2018-04-03,2018,professional or managerial,university of oxford ,oxford,True
 CAU959,research software engineer in machine learning applied to finance,22nd July 2020,2020,no_data,university of oxford            ,oxford,True
+CFH966,senior research software engineer,12th April 2021,2021,no_data,imperial college london            ,london,True
 CDN498,research software engineer (340694),12th January 2021,2021,no_data,university of strathclyde            ,glasgow,True
 BEC468,research software engineer,7th September 2017,2017,academic or research,stfc ,harwell,True
 BCO724,senior research software engineer,5th July 2017,2017,academic or research,loughborough university ,loughborough,True
@@ -213,6 +265,7 @@ BVW377,senior research software engineer,9th October 2019,2019,academic or resea
 BQQ563,research software engineer - d178425t2,5th March 2019,2019,academic or research,newcastle university            ,newcastle upon tyne,True
 BEQ137,research software engineer in computer-assisted fetal therapy,2nd October 2017,2017,academic or research,university college london ,london,True
 AKP100,research software engineer,20th February 2015,2015,academic or research,university of oxford ,oxford,True
+CEV120,research software engineer (r developer),18th March 2021,2021,no_data,imperial college london            ,london,True
 CCX709,research software engineer,3rd December 2020,2020,no_data,university of dundee            ,dundee,True
 BQM647,research software engineer,26th February 2019,2019,academic or research,university of oxford            ,oxford,True
 AOL223,research software engineer for radiotherapy,22nd August 2016,2016,academic or research,institute of cancer research ,sutton,True
@@ -231,23 +284,31 @@ BPD505,head of research software engineering,21st December 2018,2018,academic or
 BDG171,research software engineer,1st August 2017,2017,academic or research,cardiff university ,cardiff,True
 BXB909,research software engineer - vr specialist,28th November 2019,2019,academic or research,university of derby,derby,True
 BUK037,research software engineer,7th August 2019,2019,professional or managerial,university of bristol            ,bristol,True
+CHM949,research software engineer,13th July 2021,2021,no_data,the university of edinburgh            ,edinburgh,True
 BQQ487,research software engineer,5th March 2019,2019,technical,university of bath            ,bath,True
 BPD730,research software engineer,21st December 2018,2018,academic or research,university of leeds            ,leeds,True
+CIO020,senior research software engineer (101532-0821),23rd August 2021,2021,no_data,university of warwick            ,coventry,True
 BXB103,research software engineer (3 posts),27th November 2019,2019,academic or research,university of leicester            ,leicester,True
 BVB719,research software engineer (rse),5th September 2019,2019,academic or research,university of sheffield            ,sheffield,True
 BYX839,senior research software engineer in health informatics at health data research uk,24th February 2020,2020,academic or research,king's college london            ,london,True
 CDL416,research software engineer,7th January 2021,2021,no_data,lancaster university            ,lancaster,True
+CIX855,research software engineer,6th September 2021,2021,no_data,university of leicester            ,leicester,True
 CAM011,research software engineer/postdoctoral research assistant in square kilometre array,23rd June 2020,2020,no_data,university of oxford            ,oxford,True
 BBE930,research software engineer (supercomputing wales),8th May 2017,2017,academic or research,swansea university ,swansea,True
 BYA113,research software engineer - swarm optimisation for magnetic systems,15th January 2020,2020,academic or research,rosalind franklin institute            ,"didcot, harwell, oxford",True
+CIY728,research software engineer,7th September 2021,2021,no_data,university of southampton            ,southampton,True
 BVG034,research software engineer,12th September 2019,2019,academic or research,king's college london            ,london,True
 CDB344,head of research software engineering,10th December 2020,2020,no_data,university of exeter            ,exeter,True
 BWO232,strategic teaching fellow in research software engineering,7th November 2019,2019,academic or research,imperial college london,london,True
+CIF592,senior research software engineer (hpc),9th August 2021,2021,no_data,university of birmingham            ,birmingham,True
+CIU714,research software engineer,1st September 2021,2021,no_data,durham university            ,durham,True
+CHX863,senior research software engineer in computational fluid dynamics,29th July 2021,2021,,imperial college london ,london,True
 AOK408,research software engineer - grade 7,17th August 2016,2016,academic or research,university of liverpool ,liverpool,True
 BVC606,research software engineer,6th September 2019,2019,academic or research,stfc ,swindon,True
 BWW651,research software engineer,20th November 2019,2019,academic or research,imperial college london            ,london,True
 CCN692,research software engineer,13th November 2020,2020,no_data,durham university            ,durham,True
 BHI835,future food beacon: technologist - research software engineer,29th January 2018,2018,academic or research,university of nottingham ,sutton bonington,True
+CFC290,senior research software engineer (research fellow),1st April 2021,2021,,cardiff university ,cardiff,True
 BBN749,research software engineer in high performance computing (hpc) enabled multi-scale modelling,22nd May 2017,2017,academic or research,university of sheffield ,sheffield,True
 BSX568,research software engineer,12th June 2019,2019,no_data,national oceanography centre ,southampton,True
 BXM978,senior research software engineer,17th December 2019,2019,academic or research,uk atomic energy authority ukaea,culham,True
@@ -266,15 +327,21 @@ CAQ032,research software engineer (fixed-term post),7th July 2020,2020,no_data,u
 AWI701,research software engineer (78904-126),22nd December 2016,2016,academic or research,university of warwick ,coventry,True
 CAX312,research software engineer,29th July 2020,2020,no_data,university of plymouth            ,plymouth,True
 BLU399,analysis research software engineer,3rd August 2018,2018,no_data,university of oxford            ,oxford,True
+CIF749,senior research associate - research software engineer,9th August 2021,2021,no_data,university of bristol            ,bristol,True
 BJR095,"research software engineer on the neon study (fixed term, with optional phd studentship)",2018-05-09,2018,academic or research,university of nottingham ,nottingham,True
+CGX036,research software engineer in interactive ai,21st June 2021,2021,no_data,university of bristol            ,bristol,True
+CFQ927,research software engineer,29th April 2021,2021,no_data,university of oxford            ,oxford,True
 AJR288,scientific programmer / research software engineer,26th September 2014,2014,academic or research,"queen mary, university of london ",e1 4,True
 BYN184,research software engineer - virtual reality specialist,6th February 2020,2020,academic or research,university of derby            ,derby,True
 AYH638,post - doctoral research software engineer,29th March 2017,2017,academic or research,cambridge crystallographic data centre ,cambridge,True
+CHH022,research software engineer (research associate),5th July 2021,2021,no_data,cardiff university            ,cardiff,True
 BSO195,research software engineer/research associate in large scale simulation,28th May 2019,2019,academic or research,university of sheffield            ,sheffield,True
 BMB748,research software engineer,15th August 2018,2018,no_data,the university of edinburgh            ,edinburgh,True
 BCQ374,research software engineering associate,7th July 2017,2017,professional or managerial,university of oxford ,oxford,True
 CAE098,research software engineer,26th May 2020,2020,,queen's university belfast ,belfast,True
 BKZ893,research software engineer in mobile computing,2018-07-03,2018,academic or research,university of sheffield ,sheffield,True
+CEM989,senior research associate research software engineer: dimpact,3rd March 2021,2021,no_data,university of bristol            ,bristol,True
+CFR764,research software engineer - linked data,30th April 2021,2021,no_data,university of oxford            ,oxford,True
 BNK696,postdoctoral research fellow (research software engineer),12th October 2018,2018,academic or research,university of exeter            ,exeter,True
 ANM318,brissynbio junior research software engineer and junior hpc systems administrator,20th April 2016,2016,technical,university of bristol ,bristol,True
 BRI897,research software engineer (up to 3 positions),4th April 2019,2019,academic or research,durham university            ,durham,True
@@ -288,8 +355,15 @@ CBD746,research software engineer,14th August 2020,2020,no_data,university of ox
 BXO862,research software engineer,19th December 2019,2019,academic or research,king's college london            ,london,True
 CAX712,bioinformatics scientist/research software engineer,30th July 2020,2020,no_data,university of dundee            ,dundee,True
 BMT082,research software engineer - digital institute - d151380t,13th September 2018,2018,academic or research,newcastle university            ,newcastle upon tyne,True
+CDZ507,bioinformatics scientist/research software engineer,5th February 2021,2021,no_data,university of dundee            ,dundee,True
 BDY660,research software engineer,1st September 2017,2017,academic or research,cardiff university ,cardiff,True
+CEO012,research fellow: research software engineer,5th March 2021,2021,no_data,ucl            ,london,True
+CEW422,research software engineer,22nd March 2021,2021,no_data,newcastle university,newcastle upon tyne,True
 ALQ781,research software engineer,24th July 2015,2015,academic or research,"the royal veterinary college, university of london ",london,True
+CEI316,senior research associate research software engineer: dimpact,23rd February 2021,2021,no_data,university of bristol            ,bristol,True
+CDZ302,research software engineer,4th February 2021,2021,no_data,university of strathclyde            ,glasgow,True
+CHO839,senior research software engineer in computer science,15th July 2021,2021,no_data,university of sheffield            ,sheffield,True
+CFL432,translational imaging research software engineer,19th April 2021,2021,no_data,university of oxford            ,oxford,True
 BQF846,research software engineer,14th February 2019,2019,academic or research,university of oxford            ,oxford,True
 BUJ355,research fellow (research software engineering),6th August 2019,2019,academic or research,lancaster university            ,lancaster,True
 AYI720,senior research software engineer (research fellow),30th March 2017,2017,academic or research,cardiff university ,cardiff,True
@@ -298,6 +372,7 @@ AJF087,research software engineer,17th July 2014,2014,academic or research,the g
 BXM308,research data scientist / research software engineer,16th December 2019,2019,no_data,the alan turing institute,london,True
 BNE418,research software engineer (hpc),2nd October 2018,2018,professional or managerial,university of birmingham            ,birmingham,True
 BPG279,bioinformatics research software engineer,4th January 2019,2019,academic or research,university of oxford            ,oxford,True
+CGP579,bioss 09-21 - research software engineer- cloud computing,9th June 2021,2021,no_data,,edinburgh,True
 BMT739,research software engineer - ad2158sb,14th September 2018,2018,academic or research,university of st andrews            ,saint andrews,True
 CAV791,research software engineer (web development),24th July 2020,2020,no_data,imperial college london            ,london,True
 BGB950,bioinformatician / research software engineer,29th November 2017,2017,academic or research,"st george's, university of london ",london,True
@@ -310,6 +385,8 @@ ANY099,research software engineer,16th June 2016,2016,academic or research,the a
 AKH298,research software engineer/senior research software engineer,6th January 2015,2015,academic or research,university of glasgow ,glasgow,True
 BKD026,research software engineer,2018-05-29,2018,academic or research,swansea university ,swansea,True
 BIJ584,senior/principal research software engineer – high performance computing,13th March 2018,2018,academic or research,the alan turing institute ,london,True
+CEU807,research software engineer (computer vision),18th March 2021,2021,no_data,the james hutton institute            ,invergowrie,True
+CDZ488,senior research associate research software engineer: dimpact,5th February 2021,2021,no_data,university of bristol            ,bristol,True
 BGJ390,research software engineer,12th December 2017,2017,academic or research,university of glasgow ,glasgow,True
 BRZ596,research software engineer - fixed term 12 months,2nd May 2019,2019,academic or research,heriot,edinburgh,True
 BWM838,research software engineer,5th November 2019,2019,academic or research,northumbria university            ,newcastle upon tyne,True
@@ -328,7 +405,9 @@ BRG472,global change research software engineer,1st April 2019,2019,academic or 
 BWE455,research software engineer for composites simulations,22nd October 2019,2019,academic or research,university of bristol            ,bristol,True
 BVT316,research data scientist / research software engineer,3rd October 2019,2019,no_data,the alan turing institute,london,True
 BMV238,digital research scientist (research software engineer) (fixed term project based) is294318,17th September 2018,2018,academic or research,university of nottingham            ,sutton bonington,True
+CGL319,senior research software engineer (pool),3rd June 2021,2021,no_data,university of birmingham            ,birmingham,True
 BXK577,research software engineer,12th December 2019,2019,academic or research,imperial college london            ,london,True
+CFL375,research software engineer,19th April 2021,2021,no_data,university of glasgow            ,glasgow,True
 BWN441,research software engineer,6th November 2019,2019,professional or managerial,newcastle university,newcastle upon tyne,True
 BLX139,research software engineer in cloud infrastructure solutions,8th August 2018,2018,no_data,university of leeds            ,leeds,True
 BZW125,research software engineer (two posts),21st April 2020,2020,no_data,university of leicester            ,leicester,True

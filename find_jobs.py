@@ -53,6 +53,7 @@ def date_and_sort(df):
 
     return df
 
+
 def jobs_per_year(df):
     """
     Finds number of job adverts per year so we can work out percentages later
@@ -65,33 +66,48 @@ def jobs_per_year(df):
     return jobs_per_year_dict
 
 
-def find_jobs(df):
+def find_jobs(df, jobs_of_interest):
     """
     Searches the job titles to find titles of interest.
     :param df: the parsed info from the job adverts
     :return: a df with additional cols identifying rows of interest
     """
 
+    for current_job in jobs_of_interest:
+        df[current_job] = np.where(df['job title'].str.contains(current_job), True, False)
+
     # These find the rows where the job title matches the search term and creates a new column marked as True
-    df['research software engineer'] = np.where(df['job title'].str.contains('research software engineer'), True, False)
 
-
-    #df['impact manager'] = np.where(df['job title'].str.contains('impact manager'), True, False)
+    #df['research software engineer'] = np.where(df['job title'].str.contains('research software engineer'), True, False)
     #df['software developer'] = np.where(df['job title'].str.contains('software developer'), True, False)
     #df['software engineer'] = np.where(df['job title'].str.contains('software engineer'), True, False)
-    #df['refined software engineer'] = np.where((df['software engineer'] == True) & (df[job_title] == False), True, False)
+    #df['research engineer'] = np.where(df['job title'].str.contains('research engineer'), True, False)
 
     return df
 
-def enhance(df):
 
-    df_interest = df[df['research software engineer']==True]
+def enhance(df, jobs_of_interest, avoid_jobs):
 
-    # Some non-UK snuck in, so removing them
-    df_interest = df_interest[~df_interest['location'].str.contains('heidelberg')]
-    df_interest = df_interest[~df_interest['location'].str.contains('denmark')]
+    # Create a column which identifies rows which include any of the jobs of interest
+    for current_job in jobs_of_interest:
+        mask = df[current_job]==True
+        df.loc[mask, 'any_job'] = True
 
-    return df_interest
+    # THIS IS ONLY NEEDED FOR RSE and SE job columns. Obviously, all SE will be listed in the RSE column too, so
+    # we need to remove this duplication
+    mask = df['research software engineer']==True
+    df.loc[mask, 'software engineer'] = False
+
+    # Flag jobs that are not of interest and remove them
+    for not_job in avoid_jobs:
+        df['not_job'] = np.where(df['job title'].str.contains(not_job), True, False)
+        # The any_job col AND "NOT of not_job" will result in True only for those jobs that include
+        # terms from the jobs_of_interest list and do not include terms from the avoid_jobs list
+        df['keep_job'] = df['any_job'] & ~df['not_job']
+        # Limit the df to only those jobs of interest
+        df = df[df['keep_job']==True]
+
+    return df
 
 
 def summary_of_job_num(df_interest, jobs_per_year_dict):
@@ -125,13 +141,18 @@ def main():
     Main function to run program
     """
 
+    # Add a list of job titles that you want to search for here
+    jobs_of_interest = ['research software engineer', 'software developer', 'software engineer', 'research engineer', 'bioinformatician']
+
+    # Add a list of job titles that you're not interested in here
+    avoid_jobs = ['lecturer', 'fellow', 'student']
+
     start_time = time.time()
 
     # Logging
     file = open(RESULTSPATH + 'find_jobs_log.txt', 'w')
     logdate = datetime.now().strftime('%d/%m/%Y %H.%M.%S')
     file.write('Date and time: ' + str(logdate) + '\n \n')
-
 
     # Get parsed job advert data
     df = import_csv_to_df(RESULTSPATH, RESULTSFILENAME)
@@ -145,7 +166,7 @@ def main():
     file.write('There are ' + str(len(df)) + ' jobs with job titles' + '\n \n')
 
     # Enrich data by searching job titles finding roles of interest
-    df = find_jobs(df)
+    df = find_jobs(df, jobs_of_interest)
 
     # Get dates working and sort by date
     #df = date_and_sort(df)
@@ -155,7 +176,7 @@ def main():
     jobs_per_year_dict = jobs_per_year(df)
 
     # Export just the data of interest
-    df_interest=enhance(df)
+    df_interest=enhance(df, jobs_of_interest, avoid_jobs)
 
     # Calculate a summary of the data
     df_summ = summary_of_job_num(df_interest, jobs_per_year_dict)

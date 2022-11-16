@@ -94,7 +94,7 @@ def enhance(df, jobs_of_interest, avoid_jobs):
         df.loc[mask, 'any_job'] = True
 
     # THIS IS ONLY NEEDED FOR RSE and SE job columns. Obviously, all SE will be listed in the RSE column too, so
-    # we need to remove this duplication
+    # we need to remove double counting of SE in the RSE jobs
     mask = df['research software engineer']==True
     df.loc[mask, 'software engineer'] = False
 

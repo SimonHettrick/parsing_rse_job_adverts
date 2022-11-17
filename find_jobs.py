@@ -14,7 +14,6 @@ RESULTSFILENAME = './1_processed_jobs.csv'
 
 def import_csv_to_df(location, filename):
     """
-    Adding a text here
     Imports a csv file into a Pandas dataframe
     :params: an csv file and a filename from that file
     :return: a df

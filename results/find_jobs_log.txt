@@ -1,11 +1,11 @@
-Date and time: 08/09/2021 19.35.59
+Date and time: 18/11/2022 09.57.51
  
-There were 491773 parsed job adverts
+There were 191880 parsed job adverts
  
-There are 491772 jobs with job titles
+There are 191880 jobs with job titles
  
-There are 491772 jobs with a full complement of data
+There are 191880 jobs with a full complement of data
  
-There are 415 jobs with the job title of interest
+There are 1426 jobs with the job title of interest
  
-Processing took 5.0
+Processing took 2.1

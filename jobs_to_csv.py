@@ -10,7 +10,7 @@ import re
 import time
 from datetime import datetime
 
-DATASTORE = './ALL_JOBS_08-09-2021/ALL_JOBS_08-09-2021/'
+DATASTORE = './ALL_JOBS_16_10_2022/'
 RESULTSPATH = './results/'
 
 def find_files():
@@ -156,7 +156,6 @@ def read_html(list_of_adverts):
 
         return organisation
 
-
     def find_location(advert):
         """
         Find the location (i.e. the city where the job is based) in the advert
@@ -182,6 +181,48 @@ def read_html(list_of_adverts):
             location = location.strip()
 
         return location
+
+
+    def find_salary(advert):
+        """
+        Find the salary
+        :param advert: the beautiful soup parsed version of an advert
+        :return: a text field describing salary
+        """
+        try:
+            salary = advert.find('th', text='Salary:').find_next_sibling('td').text
+        except:
+            salary = 'no_data'
+            pass
+
+        # Remove carriage returns, tabs, multiple spaces and commas
+        salary_string = salary.replace('\n', ' ').replace('\t', ' ').replace('  ', '').replace(',', '')
+        # Find all the numbers in the salary string
+        processing_salaries = re.findall(r'\d+', salary_string)
+
+        # Remove all the small numbers which relate to grades or hourly pay
+        remove_list = []
+        for current_value in processing_salaries:
+            if int(current_value) < 10000:
+                remove_list.append(current_value)
+
+        processing_salaries = [x for x in processing_salaries if x not in remove_list]
+
+        try:
+            min_salary = min(processing_salaries)
+        except:
+            min_salary = ''
+
+        try:
+            max_salary = max(processing_salaries)
+        except:
+            max_salary = ''
+
+        # Add original string to salaries data for checking purposes
+        salaries = {"salary_string": salary_string, "salary_min": min_salary, "salary_max": max_salary}
+
+        return salaries
+
 
     big_data_list = []
 

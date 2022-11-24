@@ -3,7 +3,6 @@
 
 import pandas as pd
 import numpy as np
-import re
 import time
 from datetime import datetime
 
@@ -142,7 +141,7 @@ def main():
     """
 
     # Add a list of job titles that you want to search for here
-    jobs_of_interest = ['research software engineer', 'software developer', 'software engineer', 'research engineer', 'bioinformatician']
+    jobs_of_interest = ['research software engineer', 'research software engineering', 'data scientist', 'data engineer', 'software developer', 'software engineer', 'research engineer', 'bioinformatician']
 
     # Add a list of job titles that you're not interested in here
     avoid_jobs = ['lecturer', 'fellow', 'student']

@@ -2,14 +2,30 @@
 # encoding: utf-8
 
 import pandas as pd
+from matplotlib import pyplot as plt
 import numpy as np
 import time
+from glob import glob
 from datetime import datetime
 
 
 RESULTSPATH = './results/'
-RESULTSFILENAME = './1_processed_jobs.csv'
+RESULTSFILE_ROOT = '1_processed_jobs'
 
+# Fetch list of viable parsed csv files
+parsed_csvs=glob(RESULTSPATH+RESULTSFILE_ROOT+'_*.csv')
+
+# Automatically fetch the most recent csv
+parsed_csvs.sort()
+RESULTSFILENAME = parsed_csvs[-1].split('/')[-1]
+
+# Uncomment the line below to override this and manually pick an input file
+#RESULTSFILENAME = './processed_jobs_2000-01-01.csv'
+
+# Fetch the RESULTSDATE from the results filename
+RESULTSDATE = RESULTSFILENAME[-14:-4]
+
+print( 'Found job data data parsed on', RESULTSDATE )
 
 def import_csv_to_df(location, filename):
     """
@@ -85,26 +101,27 @@ def find_jobs(df, jobs_of_interest):
     return df
 
 
-def enhance(df, jobs_of_interest, avoid_jobs):
+def enhance(df_original, jobs_of_interest, avoid_jobs):
+
+    # Create copt of original dataset to work on rather than manipulating the original
+
+    df=df_original.copy()
 
     # Create a column which identifies rows which include any of the jobs of interest
+
     for current_job in jobs_of_interest:
         mask = df[current_job]==True
         df.loc[mask, 'any_job'] = True
 
-    # THIS IS ONLY NEEDED FOR RSE and SE job columns. Obviously, all SE will be listed in the RSE column too, so
-    # we need to remove double counting of SE in the RSE jobs
-    mask = df['research software engineer']==True
-    df.loc[mask, 'software engineer'] = False
-
     # Flag jobs that are not of interest and remove them
     for not_job in avoid_jobs:
-        df['not_job'] = np.where(df['job title'].str.contains(not_job), True, False)
+        df.loc[:,'not_job'] = np.where(df['job title'].str.contains(not_job), True, False)
         # The any_job col AND "NOT of not_job" will result in True only for those jobs that include
         # terms from the jobs_of_interest list and do not include terms from the avoid_jobs list
-        df['keep_job'] = df['any_job'] & ~df['not_job']
+        df.loc[:,'keep_job'] = df['any_job'] & ~df['not_job']
         # Limit the df to only those jobs of interest
-        df = df[df['keep_job']==True]
+        bad_jobs = df.loc[df['keep_job']==False]
+        df.drop(bad_jobs.index,inplace=True)
 
     return df
 
@@ -130,9 +147,42 @@ def summary_of_job_num(df_interest, jobs_per_year_dict):
     df_summ['number rse jobs'] = num_rse_list
     df_summ['percentage rse jobs'] = percent_list
 
-    df_summ.sort_values(by=['year'], inplace=True, ascending=True)
+    df_summ.sort_values(by = ['year'], inplace = True, ascending = True)
 
     return df_summ
+
+
+def plot_job_summary(raw_data,interest_data,summary):
+
+    plt.figure()
+    summary.plot('year','number rse jobs',style = 'x-')
+    #plt.xlim(summary['year'].min(),summary['year'].max())
+    plt.grid(False)
+    plt.savefig(RESULTSPATH + 'rse_jobs_per_year_' + RESULTSDATE + '.png')
+    plt.close()
+
+    plt.figure()
+    summary.plot('year','number all jobs',style = 'x-')
+    #plt.xlim(summary['year'].min(),summary['year'].max())
+    plt.grid(False)
+    plt.savefig(RESULTSPATH + 'all_jobs_per_year_' + RESULTSDATE + '.png')
+    plt.close()
+
+    datespan = (raw_data['date'].max()-raw_data['date'].min()).days
+
+    plt.figure()
+    ax = plt.axes()
+    raw_data.hist('date',bins = datespan // 28,ax=ax)
+    plt.grid(False)
+    plt.savefig(RESULTSPATH + 'all_jobs_per_week_' + RESULTSDATE + '.png')
+    plt.close()
+
+    plt.figure()
+    ax = plt.axes()
+    interest_data.hist('date',bins = datespan // 28,ax=ax)
+    plt.grid(False)
+    plt.savefig(RESULTSPATH + 'rse_jobs_per_week_' + RESULTSDATE + '.png')
+    plt.close()
 
 
 def main():
@@ -140,11 +190,11 @@ def main():
     Main function to run program
     """
 
-    # Add a list of job titles that you want to search for here
-    jobs_of_interest = ['research software engineer', 'research software engineering', 'data scientist', 'data engineer', 'software developer', 'software engineer', 'research engineer', 'bioinformatician']
+    # Add a list of job titles that you want to search for here; stems such as 'scien' will catch 'science', 'scientist' etc
+    jobs_of_interest = ['data scien', 'data engineer', 'software developer', 'software engineer', 'research engineer', 'bioinformatic']
 
     # Add a list of job titles that you're not interested in here
-    avoid_jobs = ['lecturer', 'fellow', 'student']
+    avoid_jobs = ['lectur', 'fellow', 'student', 'tutor']
 
     start_time = time.time()
 
@@ -152,44 +202,48 @@ def main():
     file = open(RESULTSPATH + 'find_jobs_log.txt', 'w')
     logdate = datetime.now().strftime('%d/%m/%Y %H.%M.%S')
     file.write('Date and time: ' + str(logdate) + '\n \n')
-
+    file.write('Analysing job list in "'+RESULTSFILENAME+'"')
     # Get parsed job advert data
     df = import_csv_to_df(RESULTSPATH, RESULTSFILENAME)
+    # Convert date column to datetime objects
+    print('Extracting date information...')
+    df['date']= pd.to_datetime(df['date'])
 
     # Logging
     file.write('There were ' + str(len(df)) + ' parsed job adverts' + '\n \n')
 
     df = clean_job_titles(df)
-
     # Logging
     file.write('There are ' + str(len(df)) + ' jobs with job titles' + '\n \n')
 
     # Enrich data by searching job titles finding roles of interest
     df = find_jobs(df, jobs_of_interest)
-
     # Get dates working and sort by date
     #df = date_and_sort(df)
     file.write('There are ' + str(len(df)) + ' jobs with a full complement of data' + '\n \n')
 
     # Get number of jobs per year
     jobs_per_year_dict = jobs_per_year(df)
-
     # Export just the data of interest
     df_interest=enhance(df, jobs_of_interest, avoid_jobs)
 
     # Calculate a summary of the data
     df_summ = summary_of_job_num(df_interest, jobs_per_year_dict)
 
+    # Make plots based on the data summary
+
+    plot_job_summary(df,df_interest,df_summ)
+
     # Export data
-    export_to_csv(df, RESULTSPATH, '2_named_processed_jobs', False)
+    export_to_csv(df, RESULTSPATH, '2_named_processed_jobs_'+RESULTSDATE, False)
 
     # Logging
     file.write('There are ' + str(len(df_interest)) + ' jobs with the job title of interest' + '\n \n')
     # Export enhanced data
-    export_to_csv(df_interest, RESULTSPATH, '3_identified_jobs', False)
+    export_to_csv(df_interest, RESULTSPATH, '3_identified_jobs_'+RESULTSDATE, False)
 
     # Export data
-    export_to_csv(df_summ, RESULTSPATH, '4_summary_identified_jobs', False)
+    export_to_csv(df_summ, RESULTSPATH, '4_summary_identified_jobs_'+RESULTSDATE, False)
 
     print("--- %s seconds ---" % round((time.time() - start_time),1))
     file.write('Processing took ' + str(round((time.time() - start_time),1)) + '\n')

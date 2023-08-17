@@ -10,7 +10,7 @@ import re
 import time
 from datetime import datetime
 
-DATASTORE = './ALL_JOBS_16_10_2022/'
+DATASTORE = './job_ads/'
 RESULTSPATH = './results/'
 
 def find_files():
@@ -51,12 +51,12 @@ def read_html(list_of_adverts):
         try:
             title = advert.find('h1').text
             if len(title) == 0:
-                title = 'no_data'
+                title = ''
         except:
-            title = 'no_data'
+            title = ''
             pass
 
-        if title != 'no_data':
+        if title != '':
             title = re.sub(clean_lb, '', title)
             title = title.lower()
 
@@ -72,14 +72,14 @@ def read_html(list_of_adverts):
         try:
             date = advert.find('td', text='Placed on:').find_next_sibling('td').text
         except:
-            date = 'no_data'
+            date = ''
             pass
 
         try:
             try_date = advert.find('th', text='Placed On:').find_next_sibling('td').text
-            # Only replace the date if the previous date is no_data (i.e. don't overwrite
+            # Only replace the date if the previous date is '' (i.e. don't overwrite
             # a valid date from the last 'try'
-            if date == 'no_data':
+            if date == '':
                 date = try_date
         except:
             pass
@@ -97,14 +97,14 @@ def read_html(list_of_adverts):
             role = advert.find('p', text='Type / Role:').find_next_sibling('p').text
             role = re.sub(clean_lb, '', role)
         except:
-            role = 'no_data'
+            role = ''
             pass
 
         try:
             try_role = advert.find('p', text='Type / Role:').find_next('a').text
             # Only replace the role if the previous role is zero (i.e. don't overwrite
             # a valid date from the last 'try'
-            if role == 'no_data':
+            if role == '':
                 role = try_role
         except:
             pass
@@ -115,7 +115,7 @@ def read_html(list_of_adverts):
                 'input').attrs['value']
             # Only replace the role if the previous role is zero (i.e. don't overwrite
             # a valid date from the last 'try'
-            if role == 'no_data':
+            if role == '':
                 role = try_role
         except:
             pass
@@ -126,12 +126,12 @@ def read_html(list_of_adverts):
                 'input').attrs['value']
             # Only replace the role if the previous role is zero (i.e. don't overwrite
             # a valid date from the last 'try'
-            if role == 'no_data':
+            if role == '':
                 role = try_role
         except:
             pass
 
-        if role !='no_data':
+        if role !='':
             role = re.sub(clean_lb, '', role)
             role = role.lower()
 
@@ -147,10 +147,10 @@ def read_html(list_of_adverts):
         try:
             organisation = advert.find('h3').text.split('-',1)[0]
         except:
-            organisation = 'no_data'
+            organisation = ''
             pass
 
-        if organisation !='no_data':
+        if organisation !='':
             organisation = re.sub(clean_lb, '', organisation)
             organisation = organisation.lower()
 
@@ -165,17 +165,17 @@ def read_html(list_of_adverts):
         try:
             location = advert.find('td', text='Location:').find_next_sibling('td').text
         except:
-            location = 'no_data'
+            location = ''
             pass
 
         try:
             try_location = advert.find('th', text='Location:').find_next_sibling('td').text
-            if location == 'no_data':
+            if location == '':
                 location = try_location
         except:
             pass
 
-        if location !='no_data':
+        if location !='':
             location = re.sub(clean_lb, '', location)
             location = location.lower()
             location = location.strip()
@@ -192,7 +192,7 @@ def read_html(list_of_adverts):
         try:
             salary = advert.find('th', text='Salary:').find_next_sibling('td').text
         except:
-            salary = 'no_data'
+            salary = ''
             pass
 
         # Remove carriage returns, tabs, multiple spaces and commas
@@ -252,7 +252,9 @@ def read_html(list_of_adverts):
                 date = find_date(advert)
 
                 # Extract year directly from date variable (there's two forms of date, hence the if)
-                if '-' in date:
+                if date=='':
+                    year = ''
+                elif '-' in date:
                     year = str(date)[:4]
                 else:
                     year = str(date)[-4:]
@@ -291,24 +293,32 @@ def main():
     # Get filenames of all available jobs
     list_of_adverts = find_files()
 
+    now = datetime.now()
+    flndate = now.strftime("%Y-%m-%d")
+    logdate = now.strftime('%d/%m/%Y %H.%M.%S')
+
     # Logging
-    file = open(RESULTSPATH + 'job_parser_log.txt', 'w')
-    logdate = datetime.now().strftime('%d/%m/%Y %H.%M.%S')
-    file.write('Date and time: ' + str(logdate) + '\n \n')
-    file.write('There were ' + str(len(list_of_adverts)) + ' job adverts reviewed in the sample' + '\n \n')
+    logfile = open(RESULTSPATH + 'job_parser_log_'+flndate+'.txt', 'w')
+
+    logfile.write('Date and time: ' + str(logdate) + '\n \n')
+    logfile.write('There were ' + str(len(list_of_adverts)) + ' job adverts reviewed in the sample' + '\n \n')
 
     # Parse jobs html and read into df
     df = read_html(list_of_adverts)
 
     # Logging
-    file.write('There were ' + str(len(df)) + ' job adverts were parsed into the data file' + '\n \n')
+    logfile.write('There were ' + str(len(df)) + ' job adverts were parsed into the data file' + '\n')
 
-    export_to_csv(df, RESULTSPATH, '1_processed_jobs', False)
+    n_invalid = sum((df['date'] == '') & (df['job title'] == ''))
+
+    logfile.write(' - ' +str(n_invalid) + ' were missing date and/or title data\n\n')
+
+    export_to_csv(df, RESULTSPATH, '1_processed_jobs_'+flndate, False)
 
     print("--- %s seconds ---" % round((time.time() - start_time),1))
-    file.write('Processing took ' + str(round((time.time() - start_time),1)) + '\n')
+    logfile.write('Processing took ' + str(round((time.time() - start_time),1)) + 's\n')
 
-    file.close()
+    logfile.close()
 
 if __name__ == '__main__':
     main()

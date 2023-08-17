@@ -1,7 +1,0 @@
-Date and time: 18/11/2022 14.43.18
- 
-There were 191880 job adverts reviewed in the sample
- 
-There were 191880 job adverts were parsed into the data file
- 
-Processing took 48966.7

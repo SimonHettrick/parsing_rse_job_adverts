@@ -16,7 +16,7 @@ import time
 start_time=time.time()
 
 RESULTSPATH = './results/'
-RESULTSNAME = '0_merged_processed_joblist.csv'
+RESULTSNAME = '1_processed_merged_jobs'
 
 args=sys.argv[1:]
 
@@ -157,7 +157,7 @@ def main(file1, file2):
 	len_merged = len(merged_df)
 	logfile.write('Merged jobs list has a length of %i\n' % len_merged)
 
-	outfilename = RESULTSPATH + RESULTSNAME
+	outfilename = RESULTSPATH + RESULTSNAME + '_' + datetime.now().strftime("%Y-%m-%d") + '.csv'
 	merged_df.to_csv(outfilename, index=False)
 
 	print('Merged dataset with %i jobs saved to "%s"' % (len_merged, outfilename) )

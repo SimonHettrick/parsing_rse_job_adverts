@@ -10,12 +10,16 @@ from datetime import datetime
 
 
 RESULTSPATH = './results/'
+MERGEDFILE_ROOT = '1_processed_merged_jobs'
 RESULTSFILE_ROOT = '1_processed_jobs'
 
 # Fetch list of viable parsed csv files
-parsed_csvs=glob(RESULTSPATH+RESULTSFILE_ROOT+'_*.csv')
+single_csvs=glob(RESULTSPATH+RESULTSFILE_ROOT+'_*.csv')
+merged_csvs=glob(RESULTSPATH+MERGEDFILE_ROOT+'_*.csv')
 
-# Automatically fetch the most recent csv
+parsed_csvs = single_csvs + merged_csvs
+
+# Automatically fetch the most recent csv, prioritising merged files
 parsed_csvs.sort()
 RESULTSFILENAME = parsed_csvs[-1].split('/')[-1]
 
@@ -25,7 +29,7 @@ RESULTSFILENAME = parsed_csvs[-1].split('/')[-1]
 # Fetch the RESULTSDATE from the results filename
 RESULTSDATE = RESULTSFILENAME[-14:-4]
 
-print( 'Found job data data parsed on', RESULTSDATE )
+print( 'Found parsed job data data at', RESULTSFILENAME )
 
 def import_csv_to_df(location, filename):
     """
@@ -185,16 +189,149 @@ def plot_job_summary(raw_data,interest_data,summary):
     plt.close()
 
 
+def get_and_plot_salaries(df,df2=None):
+
+    # Fetch the minimum and maximum years in the dataset
+
+    year_set=set(df['year'])
+    min_year=round(min(year_set))
+    max_year=round(max(year_set))
+
+    years=range(min_year,max_year+1)
+
+    # Store four values for plotting: mean salary (stored in 'salary'), clipped mean salary (mean
+    # of the salaries after removing values outside the IQR, to remove outlier influence), max salary
+    # and min salary.
+
+    df_data={
+        'salaries':[],
+        'clipped_salaries':[],
+        'max_salaries':[],
+        'min_salaries':[],
+    }
+
+    # Create slices of the dataset per year in the range
+
+    for year in years:
+        df_slice=df[df['year'] == year]
+
+        # Remove all jobs with no salary data
+
+        df_slice=df_slice.dropna(subset = ['salary'])
+
+        # If no jobs were present in a given year, append NaNs
+
+        if len(df_slice)==0:
+            df_data['salaries'].append(np.nan)
+            df_data['clipped_salaries'].append(np.nan)
+            df_data['max_salaries'].append(np.nan)
+            df_data['min_salaries'].append(np.nan)
+
+        else:
+
+            # Calculate interquartile range for clipped_salaries
+
+            Q1 = df_slice['salary'].quantile(0.25)
+            Q3 = df_slice['salary'].quantile(0.75)
+
+            # Remove values outside the IQR for clipped_salaries
+
+            iq_df_slice = df_slice.query('@Q1 <= salary <= @Q3')
+
+            # Append mean, clipped mean, max and min salaries to the lists
+
+            df_data['salaries'].append(np.mean(df_slice['salary']))
+            df_data['clipped_salaries'].append(np.mean(iq_df_slice['salary']))
+            df_data['max_salaries'].append(np.max(df_slice['salary']))
+            df_data['min_salaries'].append(np.min(df_slice['salary']))
+
+    # Repeat the process for the second dataset if given
+
+    if df2 is not None:
+        df2_data={
+            'salaries':[],
+            'clipped_salaries':[],
+            'max_salaries':[],
+            'min_salaries':[],
+        }
+
+        for year in years:
+            df_slice=df2[df2['year'] == year]
+            df_slice=df_slice.dropna(subset = ['salary'])
+
+            if len(df_slice)==0:
+                df2_data['salaries'].append(np.nan)
+                df2_data['clipped_salaries'].append(np.nan)
+                df2_data['max_salaries'].append(np.nan)
+                df2_data['min_salaries'].append(np.nan)
+            
+            else:
+                Q1 = df_slice['salary'].quantile(0.25)
+                Q3 = df_slice['salary'].quantile(0.75)
+
+                iq_df_slice = df_slice.query('@Q1 <= salary <= @Q3')
+
+                df2_data['salaries'].append(np.mean(df_slice['salary']))
+                df2_data['clipped_salaries'].append(np.mean(iq_df_slice['salary']))
+                df2_data['max_salaries'].append(np.max(df_slice['salary']))
+                df2_data['min_salaries'].append(np.min(df_slice['salary']))
+
+    # Define the plotter for compactness' sake
+
+    def plot_salaries(data_label, title, filename):
+
+        plt.figure()
+        plt.title(title)
+        plt.plot(years,df_data[data_label],label='RSE Jobs')
+        if df2 is not None:
+            plt.plot(years,df2_data[data_label],label='All Jobs')
+            plt.legend()
+        plt.savefig(RESULTSPATH + filename + '_' + RESULTSDATE + '.png')
+
+    plot_salaries('salaries','Mean Salaries','rse_salary_per_year')
+    plot_salaries('clipped_salaries','Mean Salaries','rse_salary_per_year_clipped')
+    plot_salaries('max_salaries','Max Salaries','max_rse_salary_per_year')
+    plot_salaries('min_salaries','Min Salaries','min_rse_salary_per_year')
+
+#    plt.figure()
+#    plt.title('Mean Salaries')
+#    plt.plot(years,salaries,label='RSE Jobs')
+#    if df2 is not None:
+#        plt.plot(years,salaries2,label='All Jobs')
+#       plt.legend()
+#    plt.savefig(RESULTSPATH + 'rse_salary_per_year_' + RESULTSDATE + '.png')
+
+#    plt.figure()
+#    plt.title('Max Salaries')
+#    plt.plot(years,max_salaries,label='RSE Jobs')
+#    if df2 is not None:
+#        print('===MAX===')
+#        print(df2.loc[df2['salary'].idxmax()])
+#        plt.plot(years,max_salaries2,label='All Jobs')
+#        plt.legend()
+#    plt.savefig(RESULTSPATH + 'max_rse_salary_per_year_' + RESULTSDATE + '.png')
+
+#    plt.figure()
+#    plt.title('Min salaries')
+#    plt.plot(years,min_salaries,label='RSE Jobs')
+#    if df2 is not None:
+#        print('===MIN===')
+#        print(df2.loc[df2['salary'].idxmin()])
+#        plt.plot(years,min_salaries2,label='All Jobs')
+#        plt.legend()
+#    plt.savefig(RESULTSPATH + 'min_rse_salary_per_year_' + RESULTSDATE + '.png')
+
+
 def main():
     """
     Main function to run program
     """
 
     # Add a list of job titles that you want to search for here; stems such as 'scien' will catch 'science', 'scientist' etc
-    jobs_of_interest = ['data scien', 'data engineer', 'software developer', 'software engineer', 'research engineer', 'bioinformatic']
+    jobs_of_interest = ['data scien', 'data engineer', 'software develop', 'software engineer', 'research engineer', 'bioinformatic']
 
     # Add a list of job titles that you're not interested in here
-    avoid_jobs = ['lectur', 'fellow', 'student', 'tutor']
+    avoid_jobs = [ 'fellow', 'lecturer', 'student', 'tutor', 'profess']
 
     start_time = time.time()
 
@@ -233,6 +370,10 @@ def main():
     # Make plots based on the data summary
 
     plot_job_summary(df,df_interest,df_summ)
+
+    # Collect salary stats on the data on a per-year basis
+
+    get_and_plot_salaries(df_interest,df)
 
     # Export data
     export_to_csv(df, RESULTSPATH, '2_named_processed_jobs_'+RESULTSDATE, False)

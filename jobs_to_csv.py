@@ -7,11 +7,36 @@ import numpy as np
 import glob
 import os
 import re
+import sys
 import time
 from datetime import datetime
+from collections import OrderedDict
+
+
+# Default values for datastore and resultspath when not specified at command line
 
 DATASTORE = './job_ads/'
 RESULTSPATH = './results/'
+
+# DATASTORE and RESULTSPATH can be overridden by passing these arguments when running this script on the command line,
+# e.g. 
+#  > python jobs_to_csv.py ./job_ads_simon ./simon_results
+
+in_args=sys.argv
+
+if len(in_args)<3:
+
+    pass
+
+else:
+
+    # Dont change these values, these are for the command-line override
+
+    DATASTORE = in_args[1]
+    RESULTSPATH = in_args[2]
+
+
+# ---------------------------------------------------
 
 def find_files():
     """
@@ -192,36 +217,124 @@ def read_html(list_of_adverts):
         try:
             salary = advert.find('th', text='Salary:').find_next_sibling('td').text
         except:
-            salary = ''
-            pass
+            return ''
 
-        # Remove carriage returns, tabs, multiple spaces and commas
-        salary_string = salary.replace('\n', ' ').replace('\t', ' ').replace('  ', '').replace(',', '')
-        # Find all the numbers in the salary string
-        processing_salaries = re.findall(r'\d+', salary_string)
+        # Remove carriage returns, tabs, brackets,slashes and commas
+        salary_string = salary.replace('\n', ' ').replace('\t', ' ').replace(',', '').replace('(',' ').replace(')',' ')
 
-        # Remove all the small numbers which relate to grades or hourly pay
-        remove_list = []
-        for current_value in processing_salaries:
-            if int(current_value) < 10000:
-                remove_list.append(current_value)
+        # Remove spaces either side of dashes and slashes to better locate salary ranges,
+        # convert slashes into dashes so they will be treated the same (e.g. 10000-30000 and
+        # 10000/30000 will both be treated as 20000).
+        salary_string = salary_string.replace('- ','-').replace(' -','-')
+        salary_string = salary_string.replace(' /','-').replace('/ ','-').replace('/','-')
 
-        processing_salaries = [x for x in processing_salaries if x not in remove_list]
+        # Define function to search for and extract salaries from a string when given an
+        # arbitrary currency code or symbol to search for
 
-        try:
-            min_salary = min(processing_salaries)
-        except:
-            min_salary = ''
+        def extract_values_by_currency(salary_string,currency_symbol,conversion=1):
 
-        try:
-            max_salary = max(processing_salaries)
-        except:
-            max_salary = ''
+            salary_strings = salary_string.split(currency_symbol)[1:]
+            salaries=[]
 
-        # Add original string to salaries data for checking purposes
-        salaries = {"salary_string": salary_string, "salary_min": min_salary, "salary_max": max_salary}
+            # For each value appearing after that symbol...
+            for salary in salary_strings:
 
-        return salaries
+                # Get numeric value immediately after currency sign
+                salary=salary.strip().split(' ')
+
+                # Remove any 'per annum' denotation that wasnt space-separated
+                salary_cleaned=salary[0].replace('pa','').replace('PA','').replace('p.a.','').replace('per','')
+
+                # Remove various other symbols, interpret 'xxxxx+' as just 'xxxxx'
+                salary_cleaned=salary_cleaned.replace('+','').replace('*','').replace(';','')
+
+                # Remove trailing -s (these happen when salaries are given as e.g. £30000-£40000, so both ends
+                # of the range will already be encapsulated and trailing - can be ignored)
+                salary_cleaned=salary_cleaned.strip('-')
+                
+                # Turn '40k' back into '40000', etc
+                salary_cleaned=salary_cleaned.replace('k','000').replace('K','000')
+
+                # Deal with ranges; deal with low value now, append other value onto the end of the loop list for later
+                if '-' in salary_cleaned:
+                    sc_split=salary_cleaned.split('-')
+                    salary_cleaned=sc_split[0]
+                    salary_strings.append(sc_split[1])
+
+                # If it still cant be parsed, throw it out
+
+                try:
+                    salary_value=float(salary_cleaned)
+                except:
+                    continue
+
+                # Convert to GBP
+
+                salary_gbp=salary_value*conversion
+
+                # Do not save small numbers which relate to grades or hourly pay
+
+                if salary_gbp<=12000:
+                    continue
+
+                # If there's a huge salary, something has probably gone wrong, so remove these too
+
+                if salary_gbp>500000:
+                    continue
+
+                salaries.append(salary_gbp)
+
+            # After all the fireworks, check we actually got some sane salary values out, else return ''
+
+            if len(salaries)==0:
+                return ''
+
+            else:
+                return np.mean(salaries)
+
+        # Create a dictionary of currencies to scan for with their conversion rates
+
+        # Format: tuple of symbols, conversion rate from currency to GBP  They will be looked for in this order,
+        # so keep USD near the bottom so '$' doesnt trigger for 'AUS $', for example
+
+        # Currencies based on interatively looking through unparseable files to see what could scoop more values.
+        # Exchange rates from xe.com in Sep 2023
+
+        currencies=OrderedDict()
+        currencies[('£','GBP')]=1
+        currencies[('€','EUR')]=0.85
+        currencies[('SEK')]=0.07
+        currencies[('DKK')]=0.11
+        currencies[('CHF')]=0.90
+        currencies[('MOP')]=0.098 # Macau
+        currencies[('RMB')]=0.11
+        currencies[('JPY')]=0.0054
+        currencies[('A$','AUD$','AUD $','AUD')]=0.51
+        currencies[('CAD$','CAD $','CAD')]=0.58
+        currencies[('HKD$','HK $','HKD')]=0.10
+        currencies[('NZD$','NZD $','NZD')]=0.47
+        currencies[('S$','SGD$','SGD $','SGD')]=0.58
+        currencies[('Col$','COP')]=0.00019
+        currencies[('USD$','USD','$')]=0.79
+
+        # Run the currency scanner for all currencies listed
+
+        for currency in currencies:
+            conversion=currencies[currency]
+            for symbol in currency:
+                if symbol in currency:
+                    salary=extract_values_by_currency(salary_string,symbol,conversion)
+
+                    # If salary succesfully found, return it and dont run the rest of the tests
+
+                    if salary!='':
+                        return salary
+                else:
+                    continue
+
+        # If no symbols yielded sane results, return empty string
+
+        return ''
 
 
     big_data_list = []
@@ -250,6 +363,7 @@ def read_html(list_of_adverts):
                 #Extract info I want
                 title = find_title(advert)
                 date = find_date(advert)
+                salary = find_salary(advert)
 
                 # Extract year directly from date variable (there's two forms of date, hence the if)
                 if date=='':
@@ -267,6 +381,7 @@ def read_html(list_of_adverts):
                 data.append(title)
                 data.append(date)
                 data.append(year)
+                data.append(salary)
                 data.append(role)
                 data.append(organisation)
                 data.append(location)
@@ -278,7 +393,7 @@ def read_html(list_of_adverts):
         print('Processed ' + str(sanity_counter) + ' jobs', end='\r')
 
     df = pd.DataFrame.from_records(big_data_list)
-    df.columns = ['filename', 'job title', 'date', 'year', 'role', 'organisation', 'location']
+    df.columns = ['filename', 'job title', 'date', 'year', 'salary', 'role', 'organisation', 'location']
 
     return df
 

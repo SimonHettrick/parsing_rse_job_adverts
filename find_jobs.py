@@ -283,6 +283,8 @@ def get_and_plot_salaries(df,df2=None):
         plt.figure()
         plt.title(title)
         plt.plot(years,df_data[data_label],label='RSE Jobs')
+        plt.xlabel('Year')
+        plt.ylabel('Salary (£/yr)')
         if df2 is not None:
             plt.plot(years,df2_data[data_label],label='All Jobs')
             plt.legend()
@@ -344,7 +346,7 @@ def main():
     df = import_csv_to_df(RESULTSPATH, RESULTSFILENAME)
     # Convert date column to datetime objects
     print('Extracting date information...')
-    df['date']= pd.to_datetime(df['date'])
+    df['date']= pd.to_datetime(df['date'],format='mixed')
 
     # Logging
     file.write('There were ' + str(len(df)) + ' parsed job adverts' + '\n \n')

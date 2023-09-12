@@ -95,17 +95,17 @@ def read_html(list_of_adverts):
         :return: a date on which the advert was placed
         """
         try:
-            date = advert.find('td', text='Placed on:').find_next_sibling('td').text
+            date = advert.find('td', string='Placed on:').find_next_sibling('td').text.replace('th','').replace('1st','1').replace('2nd','2').replace('3rd','3')
         except:
             date = ''
             pass
 
         try:
-            try_date = advert.find('th', text='Placed On:').find_next_sibling('td').text
+            try_date = advert.find('th', string='Placed On:').find_next_sibling('td').text
             # Only replace the date if the previous date is '' (i.e. don't overwrite
             # a valid date from the last 'try'
             if date == '':
-                date = try_date
+                date = try_date.replace('th','').replace('1st','1').replace('2nd','2').replace('3rd','3')
         except:
             pass
 
@@ -119,14 +119,14 @@ def read_html(list_of_adverts):
         :return: the role from the advert
         """
         try:
-            role = advert.find('p', text='Type / Role:').find_next_sibling('p').text
+            role = advert.find('p', string='Type / Role:').find_next_sibling('p').text
             role = re.sub(clean_lb, '', role)
         except:
             role = ''
             pass
 
         try:
-            try_role = advert.find('p', text='Type / Role:').find_next('a').text
+            try_role = advert.find('p', string='Type / Role:').find_next('a').text
             # Only replace the role if the previous role is zero (i.e. don't overwrite
             # a valid date from the last 'try'
             if role == '':
@@ -136,7 +136,7 @@ def read_html(list_of_adverts):
 
         try:
             try_role = \
-            advert.find('b', text='Type / Role:').find_next('div', {'class': 'j-form-input ie-11-width'}).find_next(
+            advert.find('b', string='Type / Role:').find_next('div', {'class': 'j-form-input ie-11-width'}).find_next(
                 'input').attrs['value']
             # Only replace the role if the previous role is zero (i.e. don't overwrite
             # a valid date from the last 'try'
@@ -147,7 +147,7 @@ def read_html(list_of_adverts):
 
         try:
             try_role = \
-            advert.find('p', text='Type / Role:').find_next('div', {'class': 'j-form-input ie-11-width'}).find_next(
+            advert.find('p', string='Type / Role:').find_next('div', {'class': 'j-form-input ie-11-width'}).find_next(
                 'input').attrs['value']
             # Only replace the role if the previous role is zero (i.e. don't overwrite
             # a valid date from the last 'try'
@@ -188,13 +188,13 @@ def read_html(list_of_adverts):
         :return: the location from the advert
         """
         try:
-            location = advert.find('td', text='Location:').find_next_sibling('td').text
+            location = advert.find('td', string='Location:').find_next_sibling('td').text
         except:
             location = ''
             pass
 
         try:
-            try_location = advert.find('th', text='Location:').find_next_sibling('td').text
+            try_location = advert.find('th', string='Location:').find_next_sibling('td').text
             if location == '':
                 location = try_location
         except:
@@ -215,7 +215,7 @@ def read_html(list_of_adverts):
         :return: a text field describing salary
         """
         try:
-            salary = advert.find('th', text='Salary:').find_next_sibling('td').text
+            salary = advert.find('th', string='Salary:').find_next_sibling('td').text
         except:
             return ''
 

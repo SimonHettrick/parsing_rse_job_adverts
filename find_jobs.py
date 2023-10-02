@@ -7,29 +7,39 @@ import numpy as np
 import time
 from glob import glob
 from datetime import datetime
+import sys
 
 
 RESULTSPATH = './results/'
+OUTRESULTSPATH = './results/'
 MERGEDFILE_ROOT = '1_processed_merged_jobs'
 RESULTSFILE_ROOT = '1_processed_jobs'
 
-# Fetch list of viable parsed csv files
-single_csvs=glob(RESULTSPATH+RESULTSFILE_ROOT+'_*.csv')
-merged_csvs=glob(RESULTSPATH+MERGEDFILE_ROOT+'_*.csv')
+if len(sys.argv)>1:
 
-parsed_csvs = single_csvs + merged_csvs
+    RESULTSPATH=''
+    RESULTSFILENAME=sys.argv[1]
+    RESULTSDATE=datetime.now().strftime("%Y-%m-%d")
 
-# Automatically fetch the most recent csv, prioritising merged files
-parsed_csvs.sort()
-RESULTSFILENAME = parsed_csvs[-1].split('/')[-1]
+else:
 
-# Uncomment the line below to override this and manually pick an input file
-#RESULTSFILENAME = './processed_jobs_2000-01-01.csv'
+    # Fetch list of viable parsed csv files
+    single_csvs=glob(RESULTSPATH+RESULTSFILE_ROOT+'_*.csv')
+    merged_csvs=glob(RESULTSPATH+MERGEDFILE_ROOT+'_*.csv')
 
-# Fetch the RESULTSDATE from the results filename
-RESULTSDATE = RESULTSFILENAME[-14:-4]
+    parsed_csvs = single_csvs + merged_csvs
 
-print( 'Found parsed job data data at', RESULTSFILENAME )
+    # Automatically fetch the most recent csv, prioritising merged files
+    parsed_csvs.sort()
+    RESULTSFILENAME = parsed_csvs[-1].split('/')[-1]
+
+    # Uncomment the line below to override this and manually pick an input file
+    #RESULTSFILENAME = './processed_jobs_2000-01-01.csv'
+
+    # Fetch the RESULTSDATE from the results filename
+    RESULTSDATE = RESULTSFILENAME[-14:-4]
+
+    print( 'Found parsed job data data at', RESULTSFILENAME )
 
 def import_csv_to_df(location, filename):
     """
@@ -162,14 +172,14 @@ def plot_job_summary(raw_data,interest_data,summary):
     summary.plot('year','number rse jobs',style = 'x-')
     #plt.xlim(summary['year'].min(),summary['year'].max())
     plt.grid(False)
-    plt.savefig(RESULTSPATH + 'rse_jobs_per_year_' + RESULTSDATE + '.png')
+    plt.savefig(OUTRESULTSPATH + 'rse_jobs_per_year_' + RESULTSDATE + '.png')
     plt.close()
 
     plt.figure()
     summary.plot('year','number all jobs',style = 'x-')
     #plt.xlim(summary['year'].min(),summary['year'].max())
     plt.grid(False)
-    plt.savefig(RESULTSPATH + 'all_jobs_per_year_' + RESULTSDATE + '.png')
+    plt.savefig(OUTRESULTSPATH + 'all_jobs_per_year_' + RESULTSDATE + '.png')
     plt.close()
 
     datespan = (raw_data['date'].max()-raw_data['date'].min()).days
@@ -178,14 +188,14 @@ def plot_job_summary(raw_data,interest_data,summary):
     ax = plt.axes()
     raw_data.hist('date',bins = datespan // 28,ax=ax)
     plt.grid(False)
-    plt.savefig(RESULTSPATH + 'all_jobs_per_week_' + RESULTSDATE + '.png')
+    plt.savefig(OUTRESULTSPATH + 'all_jobs_per_week_' + RESULTSDATE + '.png')
     plt.close()
 
     plt.figure()
     ax = plt.axes()
     interest_data.hist('date',bins = datespan // 28,ax=ax)
     plt.grid(False)
-    plt.savefig(RESULTSPATH + 'rse_jobs_per_week_' + RESULTSDATE + '.png')
+    plt.savefig(OUTRESULTSPATH + 'rse_jobs_per_week_' + RESULTSDATE + '.png')
     plt.close()
 
 
@@ -288,7 +298,7 @@ def get_and_plot_salaries(df,df2=None):
         if df2 is not None:
             plt.plot(years,df2_data[data_label],label='All Jobs')
             plt.legend()
-        plt.savefig(RESULTSPATH + filename + '_' + RESULTSDATE + '.png')
+        plt.savefig(OUTRESULTSPATH + filename + '_' + RESULTSDATE + '.png')
 
     plot_salaries('salaries','Mean Salaries','rse_salary_per_year')
     plot_salaries('clipped_salaries','Mean Salaries','rse_salary_per_year_clipped')
@@ -301,7 +311,7 @@ def get_and_plot_salaries(df,df2=None):
 #    if df2 is not None:
 #        plt.plot(years,salaries2,label='All Jobs')
 #       plt.legend()
-#    plt.savefig(RESULTSPATH + 'rse_salary_per_year_' + RESULTSDATE + '.png')
+#    plt.savefig(OUTRESULTSPATH + 'rse_salary_per_year_' + RESULTSDATE + '.png')
 
 #    plt.figure()
 #    plt.title('Max Salaries')
@@ -311,7 +321,7 @@ def get_and_plot_salaries(df,df2=None):
 #        print(df2.loc[df2['salary'].idxmax()])
 #        plt.plot(years,max_salaries2,label='All Jobs')
 #        plt.legend()
-#    plt.savefig(RESULTSPATH + 'max_rse_salary_per_year_' + RESULTSDATE + '.png')
+#    plt.savefig(OUTRESULTSPATH + 'max_rse_salary_per_year_' + RESULTSDATE + '.png')
 
 #    plt.figure()
 #    plt.title('Min salaries')
@@ -321,7 +331,7 @@ def get_and_plot_salaries(df,df2=None):
 #        print(df2.loc[df2['salary'].idxmin()])
 #        plt.plot(years,min_salaries2,label='All Jobs')
 #        plt.legend()
-#    plt.savefig(RESULTSPATH + 'min_rse_salary_per_year_' + RESULTSDATE + '.png')
+#    plt.savefig(OUTRESULTSPATH + 'min_rse_salary_per_year_' + RESULTSDATE + '.png')
 
 
 def main():
@@ -338,7 +348,7 @@ def main():
     start_time = time.time()
 
     # Logging
-    file = open(RESULTSPATH + 'find_jobs_log.txt', 'w')
+    file = open(OUTRESULTSPATH + 'find_jobs_log.txt', 'w')
     logdate = datetime.now().strftime('%d/%m/%Y %H.%M.%S')
     file.write('Date and time: ' + str(logdate) + '\n \n')
     file.write('Analysing job list in "'+RESULTSFILENAME+'"')
@@ -378,15 +388,15 @@ def main():
     get_and_plot_salaries(df_interest,df)
 
     # Export data
-    export_to_csv(df, RESULTSPATH, '2_named_processed_jobs_'+RESULTSDATE, False)
+    export_to_csv(df, OUTRESULTSPATH, '2_named_processed_jobs_'+RESULTSDATE, False)
 
     # Logging
     file.write('There are ' + str(len(df_interest)) + ' jobs with the job title of interest' + '\n \n')
     # Export enhanced data
-    export_to_csv(df_interest, RESULTSPATH, '3_identified_jobs_'+RESULTSDATE, False)
+    export_to_csv(df_interest, OUTRESULTSPATH, '3_identified_jobs_'+RESULTSDATE, False)
 
     # Export data
-    export_to_csv(df_summ, RESULTSPATH, '4_summary_identified_jobs_'+RESULTSDATE, False)
+    export_to_csv(df_summ, OUTRESULTSPATH, '4_summary_identified_jobs_'+RESULTSDATE, False)
 
     print("--- %s seconds ---" % round((time.time() - start_time),1))
     file.write('Processing took ' + str(round((time.time() - start_time),1)) + '\n')

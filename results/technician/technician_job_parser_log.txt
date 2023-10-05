@@ -1,6 +1,0 @@
-Date and time: 10/02/2021 14.50.51
- 
-Looking at the job title: technician
-There are 47 job adverts in the sample
- 
-Processing took 0.4

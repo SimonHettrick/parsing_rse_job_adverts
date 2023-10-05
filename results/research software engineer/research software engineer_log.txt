@@ -1,6 +1,0 @@
-Date and time: 28/02/2020 12.04.37
- 
-Looking at the job title: research software engineer
-There are 47 job adverts in the sample
- 
-Processing took 0.6

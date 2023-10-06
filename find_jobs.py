@@ -168,6 +168,8 @@ def summary_of_job_num(df_interest, jobs_per_year_dict):
 
 def plot_job_summary(raw_data,interest_data,summary):
 
+    export_to_csv(summary, OUTRESULTSPATH, 'jobs_by_year'+RESULTSDATE, False)
+
     plt.figure()
     summary.plot('year','number rse jobs',style = 'x-')
     #plt.xlim(summary['year'].min(),summary['year'].max())

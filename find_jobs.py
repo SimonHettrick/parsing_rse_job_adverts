@@ -15,6 +15,13 @@ OUTRESULTSPATH = './results/'
 MERGEDFILE_ROOT = '1_processed_merged_jobs'
 RESULTSFILE_ROOT = '1_processed_jobs'
 
+# Add a list of job titles that you want to search for here; stems such as 'scien' will catch 'science', 'scientist' etc
+jobs_of_interest = ['data scien', 'data engineer', 'software develop', 'software engineer', 'research engineer', 'bioinformatic']
+
+# Add a list of job titles that you're not interested in here
+avoid_jobs = [ 'fellow', 'lecturer', 'student', 'tutor', 'profess']
+
+
 if len(sys.argv)>1:
 
     RESULTSPATH=''
@@ -340,12 +347,6 @@ def main():
     """
     Main function to run program
     """
-
-    # Add a list of job titles that you want to search for here; stems such as 'scien' will catch 'science', 'scientist' etc
-    jobs_of_interest = ['data scien', 'data engineer', 'software develop', 'software engineer', 'research engineer', 'bioinformatic']
-
-    # Add a list of job titles that you're not interested in here
-    avoid_jobs = [ 'fellow', 'lecturer', 'student', 'tutor', 'profess']
 
     start_time = time.time()
 

@@ -34,3 +34,5 @@ results/comparer_log.txt
 results/in_1_not_2.png
 results/in_2_not_1.png
 results/0_merged_processed_joblist.csv
+job_ads/
+results/

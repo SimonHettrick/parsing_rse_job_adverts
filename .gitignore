@@ -36,3 +36,5 @@ results/in_2_not_1.png
 results/0_merged_processed_joblist.csv
 job_ads/
 results/
+tarred_job_data/
+raw_csvs/

@@ -151,6 +151,10 @@ def main(file1, file2):
 
 	# Merge datasets
 
+	# Add column to indicate origin of each ad
+	df1['source']='1'
+	df2['source']='2'
+
 	print('Merging datasets...')
 	merged_df = pd.concat([df1, df2_extras])
 

@@ -38,3 +38,6 @@ job_ads/
 results/
 tarred_job_data/
 raw_csvs/
+test_job_ads/
+rsejobs.db
+rsejobs.db.stats

@@ -2,12 +2,17 @@
 # encoding: utf-8
 
 import os
+import pathlib
+import shutil
+import sqlite3
 import sys
+import tarfile
 import time
 from datetime import datetime
 
 from libs import find_jobs, parse_csv
 import pandas as pd
+import tempfile
 
 # Default values for datastore and resultspath when not specified at command line
 
@@ -50,7 +55,7 @@ def main():
 
     flndate = now.strftime("%Y-%m-%d")
     logdate = now.strftime('%d/%m/%Y %H.%M.%S')
-    logfile = open(RESULTSPATH + 'piplene_log_'+flndate+'.txt', 'w')
+    logfile = open(RESULTSPATH + 'pipeline_log_'+flndate+'.txt', 'w')
 
     # Set up dict to store dfs of raw data
     dfs = {}
@@ -105,6 +110,97 @@ def main():
     logfile.write('Merged file saved to %s\n\n' % '2_merged_jobs_'+flndate+'.csv')
     logfile.write('Processing took %fs' % (time.time() - start_time) )
 
+
+    # ===== Add new files to tar =====
+
+    # Get the valid years
+    df=df.loc[df.year!='']
+    valid_years = df['year'].unique()
+    
+    for year in valid_years:
+        y_df = df.loc[df['year'] == year]
+
+        with tempfile.TemporaryDirectory() as td:
+
+            tdir = str(pathlib.Path(td))+'/'
+
+            # Extract current contents of tarfile (if exists)
+            try:
+                tar = tarfile.open(RESULTSPATH+'jobs_'+str(year)+'.tar.gz', 'r|gz')
+                tar.extractall(tdir)
+                tar.close()
+
+            except FileNotFoundError:
+                print('No existing tar found')
+        
+            # Copy all new files to the temp directory
+            for _, job in y_df.iterrows():
+                shutil.copyfile(job['source']+job['filename'], tdir+job['filename'])
+
+            # Add the temp directory in its entirety to the new replacement tar
+            tar = tarfile.open(RESULTSPATH+'jobs_'+str(year)+'.tar.gz', 'w|gz')    
+            tar.add(tdir, recursive=True, arcname='')
+            tar.close()
+
+    # ===== Add new files to database =====
+
+    conn = sqlite3.connect(RESULTSPATH+'jobs.sqlite3')
+
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS jobs (
+            id INTEGER PRIMARY KEY,
+            filename TEXT NOT NULL, 
+            job_title TEXT NOT NULL, 
+            start_date DATE,
+            salary FLOAT,
+            role TEXT,
+            organisation TEXT,
+            location TEXT,
+            source TEXT,
+            contains_data_scien BOOLEAN,
+            contains_data_engineer BOOLEAN,
+            contains_software_develop BOOLEAN,
+            contains_software_engineer BOOLEAN,
+            contains_research_engineer BOOLEAN,
+            contains_bioinformatic BOOLEAN
+        );
+    """)
+    conn.commit()
+
+    # Fetch any results already in the db, remove from data to be added
+    prev_files = pd.DataFrame(conn.execute("SELECT filename FROM jobs").fetchall())
+    try:
+        prev_records = prev_files[0].tolist()
+    except KeyError:
+        prev_records = []
+
+    db_df = df.loc[~df['filename'].isin(prev_records)]
+
+    # Reformat the raw df to be compatible with the df
+    db_df = db_df.rename(columns={
+        'job title':'job_title',
+        'date':'start_date',
+        'data scien':'contains_data_scien',
+        'data engineer':'contains_data_engineer',
+        'software develop':'contains_software_develop',
+        'software engineer':'contains_software_engineer',
+        'research engineer':'contains_research_engineer',
+        'bioinformatic':'contains_bioinformatic',
+    })
+    db_df.drop(['year'], axis=1, inplace=True)
+    db_df.to_sql('jobs', conn, if_exists='append', index=False)
+    conn.commit()
+
+    with open(RESULTSPATH+'jobs.sqlite3.stats', 'w') as fstats:
+
+        fstats.write('Field name,Valid Values,Invalid Values\n')
+        for column in db_df.columns:
+            cursor.execute(f'SELECT * FROM jobs WHERE {column} IS NOT NULL')
+            isntnull=str(len(cursor.fetchall()))
+            cursor.execute(f'SELECT * FROM jobs WHERE {column} IS NULL')
+            isnull=str(len(cursor.fetchall()))
+            fstats.write(', '.join([column, isntnull, isnull])+'\n')
 
     # ===== Find jobs =====
 

@@ -35,16 +35,26 @@ conn.commit()
 
 with open(args[0],'r') as f_in:
     df = pd.read_csv(f_in)
-    df = df.rename(columns={
-        'job title':'job_title',
-        'date':'start_date',
-        'data scien':'contains_data_scien',
-        'data engineer':'contains_data_engineer',
-        'software develop':'contains_software_develop',
-        'software engineer':'contains_software_engineer',
-        'research engineer':'contains_research_engineer',
-        'bioinformatic':'contains_bioinformatic',
-    })
-    df = df.drop('year', axis=1)
-    df.to_sql('jobs', conn, if_exists='replace', index=False)
-    conn.commit()
+df = df.rename(columns={
+    'job title':'job_title',
+    'date':'start_date',
+    'data scien':'contains_data_scien',
+    'data engineer':'contains_data_engineer',
+    'software develop':'contains_software_develop',
+    'software engineer':'contains_software_engineer',
+    'research engineer':'contains_research_engineer',
+    'bioinformatic':'contains_bioinformatic',
+})
+df = df.drop('year', axis=1)
+df.to_sql('jobs', conn, if_exists='replace', index=False)
+conn.commit()
+
+with open(args[1]+'.stats', 'w') as fstats:
+
+    fstats.write('Field name,Valid Values,Invalid Values\n')
+    for column in df.columns:
+        cursor.execute(f'SELECT * FROM jobs WHERE {column} IS NOT NULL')
+        isntnull=str(len(cursor.fetchall()))
+        cursor.execute(f'SELECT * FROM jobs WHERE {column} IS NULL')
+        isnull=str(len(cursor.fetchall()))
+        fstats.write(', '.join([column, isntnull, isnull])+'\n')

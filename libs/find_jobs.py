@@ -1,14 +1,12 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-import pandas as pd
 from matplotlib import pyplot as plt
 import numpy as np
-import time
-from glob import glob
-from datetime import datetime
-import sys
 from .parse_csv import export_to_csv
+
+import pandas as pd
+import settings
 
 def clean_job_titles(df):
 
@@ -44,14 +42,14 @@ def jobs_per_year(df):
     return jobs_per_year_dict
 
 
-def find_jobs(df, jobs_of_interest):
+def find_jobs(df):
     """
     Searches the job titles to find titles of interest.
     :param df: the parsed info from the job adverts
     :return: a df with additional cols identifying rows of interest
     """
 
-    for current_job in jobs_of_interest:
+    for current_job in settings.jobs_of_interest:
         df[current_job] = np.where(df['job title'].str.contains(current_job), True, False)
 
     # These find the rows where the job title matches the search term and creates a new column marked as True
@@ -64,7 +62,7 @@ def find_jobs(df, jobs_of_interest):
     return df
 
 
-def enhance(df_original, jobs_of_interest, avoid_jobs):
+def enhance(df_original):
 
     # Create copt of original dataset to work on rather than manipulating the original
 
@@ -72,18 +70,18 @@ def enhance(df_original, jobs_of_interest, avoid_jobs):
 
     # Create a column which identifies rows which include any of the jobs of interest
 
-    for current_job in jobs_of_interest:
-        mask = df[current_job]==True
+    for current_job in settings.jobs_of_interest:
+        mask = df[current_job] == True
         df.loc[mask, 'any_job'] = True
 
     # Flag jobs that are not of interest and remove them
-    for not_job in avoid_jobs:
+    for not_job in settings.avoid_jobs:
         df.loc[:,'not_job'] = np.where(df['job title'].str.contains(not_job), True, False)
         # The any_job col AND "NOT of not_job" will result in True only for those jobs that include
         # terms from the jobs_of_interest list and do not include terms from the avoid_jobs list
         df.loc[:,'keep_job'] = df['any_job'] & ~df['not_job']
         # Limit the df to only those jobs of interest
-        bad_jobs = df.loc[df['keep_job']==False]
+        bad_jobs = df.loc[df['keep_job'] == False]
         df.drop(bad_jobs.index,inplace=True)
 
     return df
@@ -255,98 +253,3 @@ def get_and_plot_salaries(df,resultspath,filedate,df2=None):
     plot_salaries('clipped_salaries','Mean Salaries','rse_salary_per_year_clipped')
     plot_salaries('max_salaries','Max Salaries','max_rse_salary_per_year')
     plot_salaries('min_salaries','Min Salaries','min_rse_salary_per_year')
-
-#    plt.figure()
-#    plt.title('Mean Salaries')
-#    plt.plot(years,salaries,label='RSE Jobs')
-#    if df2 is not None:
-#        plt.plot(years,salaries2,label='All Jobs')
-#       plt.legend()
-#    plt.savefig(OUTRESULTSPATH + 'rse_salary_per_year_' + RESULTSDATE + '.png')
-
-#    plt.figure()
-#    plt.title('Max Salaries')
-#    plt.plot(years,max_salaries,label='RSE Jobs')
-#    if df2 is not None:
-#        print('===MAX===')
-#        print(df2.loc[df2['salary'].idxmax()])
-#        plt.plot(years,max_salaries2,label='All Jobs')
-#        plt.legend()
-#    plt.savefig(OUTRESULTSPATH + 'max_rse_salary_per_year_' + RESULTSDATE + '.png')
-
-#    plt.figure()
-#    plt.title('Min salaries')
-#    plt.plot(years,min_salaries,label='RSE Jobs')
-#    if df2 is not None:
-#        print('===MIN===')
-#        print(df2.loc[df2['salary'].idxmin()])
-#        plt.plot(years,min_salaries2,label='All Jobs')
-#        plt.legend()
-#    plt.savefig(OUTRESULTSPATH + 'min_rse_salary_per_year_' + RESULTSDATE + '.png')
-
-
-def main():
-    """
-    Main function to run program
-    """
-
-    start_time = time.time()
-
-    # Logging
-    file = open(OUTRESULTSPATH + 'find_jobs_log.txt', 'w')
-    logdate = datetime.now().strftime('%d/%m/%Y %H.%M.%S')
-    file.write('Date and time: ' + str(logdate) + '\n \n')
-    file.write('Analysing job list in "'+RESULTSFILENAME+'"')
-    # Get parsed job advert data
-    df = import_csv_to_df(RESULTSPATH, RESULTSFILENAME)
-    # Convert date column to datetime objects
-    print('Extracting date information...')
-    df['date']= pd.to_datetime(df['date'],format='mixed')
-
-    # Logging
-    file.write('There were ' + str(len(df)) + ' parsed job adverts' + '\n \n')
-
-    df = clean_job_titles(df)
-    # Logging
-    file.write('There are ' + str(len(df)) + ' jobs with job titles' + '\n \n')
-
-    # Enrich data by searching job titles finding roles of interest
-    df = find_jobs(df, jobs_of_interest)
-    # Get dates working and sort by date
-    #df = date_and_sort(df)
-    file.write('There are ' + str(len(df)) + ' jobs with a full complement of data' + '\n \n')
-
-    # Get number of jobs per year
-    jobs_per_year_dict = jobs_per_year(df)
-    # Export just the data of interest
-    df_interest=enhance(df, jobs_of_interest, avoid_jobs)
-
-    # Calculate a summary of the data
-    df_summ = summary_of_job_num(df_interest, jobs_per_year_dict)
-
-    # Make plots based on the data summary
-
-    plot_job_summary(df,df_interest,df_summ)
-
-    # Collect salary stats on the data on a per-year basis
-
-    get_and_plot_salaries(df_interest,df)
-
-    # Export data
-    export_to_csv(df, OUTRESULTSPATH, '2_named_processed_jobs_'+RESULTSDATE, False)
-
-    # Logging
-    file.write('There are ' + str(len(df_interest)) + ' jobs with the job title of interest' + '\n \n')
-    # Export enhanced data
-    export_to_csv(df_interest, OUTRESULTSPATH, '3_identified_jobs_'+RESULTSDATE, False)
-
-    # Export data
-    export_to_csv(df_summ, OUTRESULTSPATH, '4_summary_identified_jobs_'+RESULTSDATE, False)
-
-    print("--- %s seconds ---" % round((time.time() - start_time),1))
-    file.write('Processing took ' + str(round((time.time() - start_time),1)) + '\n')
-
-    file.close()
-
-if __name__ == '__main__':
-    main()

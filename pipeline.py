@@ -6,13 +6,13 @@ import sqlite3
 import time
 from datetime import datetime
 
-from libs import find_jobs, parse_csv, raw
+from libs import find_jobs, parse_csv, raw, scrape_jobs
 import pandas as pd
 import settings
 
 # Default values for datastore and resultspath when not specified at command line
 
-DATASTORES = settings.DEFAULT_DATASTORES
+datastores = settings.DEFAULT_DATASTORES
 RESULTSPATH = settings.RESULTSPATH
 
 # DATASTORES can be overridden by passing a list of directories as arguments when
@@ -21,7 +21,7 @@ RESULTSPATH = settings.RESULTSPATH
 
 in_args=sys.argv
 if '--test' in in_args:
-    DATASTORES = settings.TEST_DATASTORES
+    datastores = settings.TEST_DATASTORES
 
 # ---------------------------------------------------
 
@@ -36,11 +36,15 @@ def main():
     now = datetime.now()
 
     flndate = now.strftime("%Y-%m-%d")
-    logfile = open(RESULTSPATH + 'pipeline_log_'+flndate+'.txt', 'w')
+    logfile = open(settings.RESULTSPATH + 'pipeline_log_'+flndate+'.txt', 'w')
+
+    if '--scrape' in in_args:
+        logfile.write('Scraping new jobs:')
+        scrape_jobs.scrape()
 
     if not '--from-db' in in_args:
-        raw.scrape_from_raw(
-            datastores=DATASTORES,
+        raw.parse_from_raw(
+            datastores=datastores,
             logfile=logfile,
             start_time=now,
         )
@@ -52,7 +56,7 @@ def main():
 
     # ===== Annotate database =====
 
-    df['year'] = pd.DatetimeIndex(df['start_date']).year
+    df['year'] = pd.DatetimeIndex(df['start_date']).year                # pylint: disable=no-member
     df['salary'] = pd.to_numeric(df['salary'])
 
 
@@ -88,19 +92,19 @@ def main():
     df_summ = find_jobs.summary_of_job_num(df_interest, jobs_per_year_dict)
 
     # Make plots and gather stats based on the data summary
-    find_jobs.plot_job_summary(df,df_interest,df_summ,RESULTSPATH,flndate)
-    find_jobs.get_and_plot_salaries(df_interest,RESULTSPATH,flndate,df2=df)
+    find_jobs.plot_job_summary(df, df_interest, df_summ,settings.RESULTSPATH, flndate)
+    find_jobs.get_and_plot_salaries(df_interest, settings.RESULTSPATH, flndate, df2=df)
 
     # Export data
-    parse_csv.export_to_csv(df, RESULTSPATH, '2_named_processed_jobs_'+flndate, False)
+    parse_csv.export_to_csv(df, settings.RESULTSPATH, '2_named_processed_jobs_'+flndate, False)
 
     # Export enhanced data
-    parse_csv.export_to_csv(df_interest, RESULTSPATH, '3_identified_jobs_'+flndate, False)
+    parse_csv.export_to_csv(df_interest, settings.RESULTSPATH, '3_identified_jobs_'+flndate, False)
 
     # Export data
-    parse_csv.export_to_csv(df_summ, RESULTSPATH, '4_summary_identified_jobs_'+flndate, False)
+    parse_csv.export_to_csv(df_summ, settings.RESULTSPATH, '4_summary_identified_jobs_'+flndate, False)
 
-    print("--- %s seconds ---" % round((time.time() - start_time),1))
+    print(f"--- {round((time.time() - start_time),1)} seconds ---")
     logfile.write('Processing took ' + str(round((time.time() - start_time),1)) + '\n')
 
     logfile.close()

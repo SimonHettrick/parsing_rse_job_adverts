@@ -3,14 +3,14 @@ import pathlib
 import shutil
 import sqlite3
 import tarfile
+import tempfile
 
 from libs import parse_csv
 import pandas as pd
-import tempfile
 import settings
 
 
-def scrape_from_raw(datastores, logfile, start_time):
+def parse_from_raw(datastores, logfile, start_time):
 
     flndate = start_time.strftime("%Y-%m-%d")
     logdate = start_time.strftime('%d/%m/%Y %H.%M.%S')
@@ -26,22 +26,32 @@ def scrape_from_raw(datastores, logfile, start_time):
 
         logfile.write('Analysed datastore: ' + datastore + '\n \n')
         logfile.write('Date and time: ' + str(logdate) + '\n \n')
-        logfile.write('There were ' + str(len(list_of_adverts)) + ' job adverts reviewed in the sample' + '\n \n')
+        logfile.write(f'There were {len(list_of_adverts)} job adverts reviewed in the sample.\n \n')
 
         # Parse jobs html and read into df
-        dfs[datastore] = parse_csv.read_html(list_of_adverts)
+        parsed_df = parse_csv.read_html(list_of_adverts)
+
+        if parsed_df.empty:
+            continue
+
+        dfs[datastore] = parsed_df
 
         # Logging
-        logfile.write('There were ' + str(len(dfs[datastore])) + ' job adverts were parsed into the data file' + '\n')
+        logfile.write(f'There were {len(dfs[datastore])} job adverts were parsed into the data file\n')
 
         n_invalid = sum((dfs[datastore]['date'] == '') & (dfs[datastore]['job title'] == ''))
 
-        logfile.write(' - ' +str(n_invalid) + ' were missing date and/or title data\n\n')
+        logfile.write(f' - {n_invalid} were missing date and/or title data\n\n')
 
-        parse_csv.export_to_csv(dfs[datastore], settings.RESULTSPATH, '1_processed_jobs_'+datastore.replace('/','_')+'_'+flndate, False)
+        parse_csv.export_to_csv(
+            dfs[datastore],
+            settings.RESULTSPATH,
+            '1_processed_jobs_'+datastore.replace('/','_')+'_'+flndate,
+            False,
+        )
 
-        print("--- Processed html files in %s to csv ---" % datastore)
-        print("--- %s seconds ---" % str(datetime.now() - start_time))
+        print(f"--- Processed html files in {datastore} to csv ---")
+        print(f"--- {datetime.now() - start_time} seconds ---")
         logfile.write('Processing took ' + str(datetime.now() - start_time) + 's\n')
 
 
@@ -51,19 +61,21 @@ def scrape_from_raw(datastores, logfile, start_time):
     df['source'] = datastores[0]
 
     for datastore in datastores[1:]:
+        if not datastore in dfs:
+            continue
         new_df = dfs[datastore]
         ids_present_in_base = df['filename'].unique()
         new_records = new_df[~new_df['filename'].isin(ids_present_in_base)]
         new_records['source']=datastore
         df = pd.concat((df, new_records))
 
-    logfile.write('Merged jobs list has a length of %i\n' % len(df))
+    logfile.write(f'Merged jobs list has a length of {len(df)}\n')
 
     parse_csv.export_to_csv(df, settings.RESULTSPATH, '1_merged_jobs_'+flndate, False)
 
-    print('Merged dataset with %i jobs saved to "%s"' % (len(df), '2_merged_jobs_'+flndate+'.csv') )
-    logfile.write('Merged file saved to %s\n\n' % '2_merged_jobs_'+flndate+'.csv')
-    logfile.write('Processing took %s' % str(datetime.now() - start_time) )
+    print(f'Merged dataset with {len(df)} jobs saved to "2_merged_jobs_{flndate}.csv"')
+    logfile.write(f'Merged file saved to 2_merged_jobs_{flndate}.csv\n\n')
+    logfile.write(f'Processing took {datetime.now() - start_time}')
 
 
     # ===== Add new files to tar =====
@@ -81,9 +93,8 @@ def scrape_from_raw(datastores, logfile, start_time):
 
             # Extract current contents of tarfile (if exists)
             try:
-                tar = tarfile.open(settings.RESULTSPATH+'jobs_'+str(year)+'.tar.gz', 'r|gz')
-                tar.extractall(tdir)
-                tar.close()
+                with tarfile.open(settings.RESULTSPATH+'jobs_'+str(year)+'.tar.gz', 'r|gz') as tar:
+                    tar.extractall(tdir)
 
             except FileNotFoundError:
                 print('No existing tar found')
@@ -93,9 +104,8 @@ def scrape_from_raw(datastores, logfile, start_time):
                 shutil.copyfile(str(job['source'])+job['filename'], tdir+job['filename'])
 
             # Add the temp directory in its entirety to the new replacement tar
-            tar = tarfile.open(settings.RESULTSPATH+'jobs_'+str(year)+'.tar.gz', 'w|gz')
-            tar.add(tdir, recursive=True, arcname='')
-            tar.close()
+            with tarfile.open(settings.RESULTSPATH+'jobs_'+str(year)+'.tar.gz', 'w|gz') as tar:
+                tar.add(tdir, recursive=True, arcname='')
 
     # ===== Add new files to database =====
 
@@ -112,6 +122,7 @@ def scrape_from_raw(datastores, logfile, start_time):
             role TEXT,
             organisation TEXT,
             location TEXT,
+            country TEXT,
             source TEXT
         );
     """)

@@ -42,3 +42,4 @@ test_job_ads/
 rsejobs.db
 rsejobs.db.stats
 db/
+scraped_jobs/

@@ -5,11 +5,11 @@
 Script to scrap the different jobs on https://www.jobs.ac.uk
 """
 import os
-import json
 import errno
 import time
 
 import requests
+import settings
 from bs4 import BeautifulSoup
 
 content_attrs = [{'attrs_id': 'class', 'attrs_content': 'content'},
@@ -32,13 +32,13 @@ def get_page(url):
     :returns:
         requests object text
     """
-    for counter in range(5):
+    for _ in range(5):
         try:
-            page = requests.get(url)
+            page = requests.get(url, timeout=10)
             break
-        except (requests.exceptions.ConnectionError, requests.exceptions.ChunkedEncodingError) as err:
-            print('Connecting to {}. Connection failed with {}. sleeping 100s then retrying.'.format(url, err))
-            
+        except (requests.exceptions.ConnectionError, requests.exceptions.ChunkedEncodingError) as e:
+            print(f'Connecting to {url}. Connection failed with {e}. sleeping 100s then retrying.')
+
             time.sleep(100)
             continue
     return page.text
@@ -82,7 +82,7 @@ def extract_job_url(job):
     return job.a['href']
 
 
-def split_info_from_job_url(BASE_URL, job_rel_url):
+def split_info_from_job_url(job_rel_url):
     """
     Split the job_rel_url to get the separated info and
     create a full URL by combining the BASE_URL and the job_rel_url
@@ -97,12 +97,11 @@ def split_info_from_job_url(BASE_URL, job_rel_url):
     # The first element of the list is 'job' as the structure
     # of the string is like this:
     # /job/BJR877/assistant-professor-associate-professor-full-professor-in-computational-environmental-sciences-and-engineering/
-    #print(splitted_url)
     if len(splitted_url) != 3:
         raise ValueError
     job_id = splitted_url[1]
     job_name = splitted_url[2]
-    job_full_url = BASE_URL + job_rel_url
+    job_full_url = settings.BASE_URL + job_rel_url
     return job_id, job_name, job_full_url
 
 
@@ -119,26 +118,28 @@ def to_download(input_folder, job_id):
     filename = os.path.join(input_folder, job_id)
     if not os.path.isfile(filename):
         return True
-    else:
-        with open(filename, 'r') as f:
-            check_content = f.read()
-            if check_content is None:
-                print('{}: No data recorded'.format(filename))
-                return True
+    with open(filename, 'r') as f:
+        check_content = f.read()
+        if check_content is None:
+            print(f'{filename}: No data recorded')
+            return True
+    return False
 
 
 def _extract_ads(data, attrs_id, attrs_content):
     """
-    Extract the div that contains the data in the beautiful object ads. Try if the data is under the div class
-    'content'. If it is not, it returns itself with the div_class set
-    up with 'enhanced-content'
+    Extract the div that contains the data in the beautiful object ads. Try if the data is under
+    the div class 'content'. If it is not, it returns itself with the div_class set up with
+    'enhanced-content'
+
     :params:
         data bs4 obj: job ads
         attrs_id str: the type of tag for div. by default it is class
         attrs_content str: the data is either within the div_class 'content'
         or div id='enhanced-content'. By default it check the 'content'
     :returns:
-        bs4 object : only the div that contains the information. Empty document if not found anything
+        bs4 object : only the div that contains the information. Empty document if not found
+        anything
     """
     return data.find_all("div", attrs={attrs_id: attrs_content})
 
@@ -148,6 +149,7 @@ def extract_ads_info(data):
         content = _extract_ads(data, attrs['attrs_id'], attrs['attrs_content'])
         if len(content) > 0:
             return content
+    return None
 
 
 def new_extract_ads_info(data):
@@ -179,39 +181,22 @@ def record_data(input_folder, job_id, data):
             f.write(str_data)
     else:
         print(str_data)
-        raise
-
-#def getArgs():
+        raise ValueError
 
 
-def main():
+def scrape():
     """
+    Scrapes currently listed jobs at the URL provided in settings and convert them into html files
+    in the location provided in settings.
     """
-    description = "Collect jobs from jobs.ac.uk"
-
-    #arguments = getArgs(description)
-    #config_values = arguments.return_arguments()
-
-
-    # Get the folder or the file where the input data are stored
-    #input_folder = config_values.INPUT_FOLDER
-    input_folder = "data"
 
     # Check if the folder exists
-    print('Check if the input folder exists: {}'.format(input_folder))
-    make_sure_path_exists(input_folder)
-
-
-    # Setting the URL.
-    # Number of jobs fetch for one query
-    #NUM_JOBS = config_values.NUM_JOBS
-    NUM_JOBS = 10000
-    BASE_URL = "http://www.jobs.ac.uk"
-    FULL_URL = "{}/search/?keywords=*&sort=re&s=1&pageSize={}".format(BASE_URL, NUM_JOBS)
+    print(f'Check if the input folder exists: {settings.SCRAPE_DATASTORE}')
+    make_sure_path_exists(settings.SCRAPE_DATASTORE)
 
     # Start the job collection
     print('Getting the search page')
-    page = get_page(FULL_URL)
+    page = get_page(settings.FULL_URL)
     data = transform_txt_in_bs4(page)
 
     jobs_list = split_by_results(data)
@@ -220,24 +205,19 @@ def main():
     for job in jobs_list:
         job_rel_url = extract_job_url(job)
         try:
-            jobid, job_name, job_full_url = split_info_from_job_url(BASE_URL, job_rel_url)
+            jobid, _, job_full_url = split_info_from_job_url(job_rel_url)
         except ValueError:
-            print('Skipping job url {} as it is badly formed'.format(BASE_URL+job_rel_url))
+            print(f'Skipping job url {settings.BASE_URL+job_rel_url} as it is badly formed')
             continue
         # Check if the jobid is not parsed yet
-        if to_download(input_folder, jobid) is True:
+        if to_download(settings.SCRAPE_DATASTORE, jobid) is True:
             #print('Job id: {}'.format(jobid))
             job_page = get_page(job_full_url)
             job_data = transform_txt_in_bs4(job_page)
             data_to_record = new_extract_ads_info(job_data)
             if data_to_record is None:
-                data_to_record = extract_ads_info(jobs_data)
-            if data_to_record is None:
-                raise
-            record_data(input_folder, jobid, data_to_record)
+                data_to_record = extract_ads_info(job_data)
+            record_data(settings.SCRAPE_DATASTORE, jobid, data_to_record)
             n+=1
             #print('Jobs downloaded: {}'.format(n))
-    print('Jobs downloaded: {}'.format(n))
-
-if __name__ == "__main__":
-    main()
+    print(f'Jobs downloaded: {n}')

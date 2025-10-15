@@ -1,9 +1,10 @@
 import glob
+import json
 import os
 import re
+from collections import OrderedDict
 
 from bs4 import BeautifulSoup
-from collections import OrderedDict
 import numpy as np
 import pandas as pd
 
@@ -30,7 +31,9 @@ def export_to_csv(df, location, filename, index_write):
 
 def read_html(list_of_adverts):
     """
-    Goes through the list of job adverts in the DATASTORE dir, extracts the data I need and adds it to a df
+    Goes through the list of job adverts in the DATASTORE dir, extracts the data I need and adds it
+    to a df
+    
     :param list_of_adverts: a list of the job advert filenames
     :return: a df with a data extracted from job adverts (titles, start date, location, etc)
     """
@@ -46,9 +49,8 @@ def read_html(list_of_adverts):
             title = advert.find('h1').text
             if len(title) == 0:
                 title = ''
-        except:
+        except AttributeError:
             title = ''
-            pass
 
         if title != '':
             title = re.sub(clean_lb, '', title)
@@ -64,19 +66,20 @@ def read_html(list_of_adverts):
         :return: a date on which the advert was placed
         """
         try:
-            date = advert.find('td', string='Placed on:').find_next_sibling('td').text.replace('th','').replace('1st','1').replace('2nd','2').replace('3rd','3')
-        except:
+            date = advert.find('td', string='Placed on:').find_next_sibling('td').text
+            date = date.replace('th','').replace('1st','1').replace('2nd','2').replace('3rd','3')
+        except AttributeError:
             date = ''
-            pass
 
-        try:
-            try_date = advert.find('th', string='Placed On:').find_next_sibling('td').text
-            # Only replace the date if the previous date is '' (i.e. don't overwrite
-            # a valid date from the last 'try'
-            if date == '':
-                date = try_date.replace('th','').replace('1st','1').replace('2nd','2').replace('3rd','3')
-        except:
-            pass
+        # Only replace the date if the previous date is '' (i.e. don't overwrite
+        # a valid date from the last 'try'
+        if date == '':
+            try:
+                date = advert.find('th', string='Placed On:').find_next_sibling('td').text
+                date = date.replace('th','').replace('1st','1')
+                date = date.replace('2nd','2').replace('3rd','3')
+            except AttributeError:
+                pass
 
         return date
 
@@ -90,9 +93,8 @@ def read_html(list_of_adverts):
         try:
             role = advert.find('p', string='Type / Role:').find_next_sibling('p').text
             role = re.sub(clean_lb, '', role)
-        except:
+        except AttributeError:
             role = ''
-            pass
 
         try:
             try_role = advert.find('p', string='Type / Role:').find_next('a').text
@@ -100,7 +102,7 @@ def read_html(list_of_adverts):
             # a valid date from the last 'try'
             if role == '':
                 role = try_role
-        except:
+        except AttributeError:
             pass
 
         try:
@@ -111,7 +113,7 @@ def read_html(list_of_adverts):
             # a valid date from the last 'try'
             if role == '':
                 role = try_role
-        except:
+        except AttributeError:
             pass
 
         try:
@@ -122,7 +124,7 @@ def read_html(list_of_adverts):
             # a valid date from the last 'try'
             if role == '':
                 role = try_role
-        except:
+        except AttributeError:
             pass
 
         if role !='':
@@ -140,9 +142,8 @@ def read_html(list_of_adverts):
         """
         try:
             organisation = advert.find('h3').text.split('-',1)[0]
-        except:
+        except AttributeError:
             organisation = ''
-            pass
 
         if organisation !='':
             organisation = re.sub(clean_lb, '', organisation)
@@ -158,15 +159,14 @@ def read_html(list_of_adverts):
         """
         try:
             location = advert.find('td', string='Location:').find_next_sibling('td').text
-        except:
+        except AttributeError:
             location = ''
-            pass
 
         try:
             try_location = advert.find('th', string='Location:').find_next_sibling('td').text
             if location == '':
                 location = try_location
-        except:
+        except AttributeError:
             pass
 
         if location !='':
@@ -177,6 +177,25 @@ def read_html(list_of_adverts):
         return location
 
 
+    def find_country(advert):
+        """
+        Find the country where the job is based
+        :param advert: the beatiful soup parsed version of an advert
+        :return: the location from the advert
+        """
+        locscript = advert.find('script', type="application/ld+json")
+        if not locscript:
+            return None
+
+        parsed_script = json.loads(locscript.string)
+        try:
+            country = parsed_script['jobLocation'][0]['address']['addressCountry']
+        except KeyError:
+            return None
+
+        return country
+
+
     def find_salary(advert):
         """
         Find the salary
@@ -185,7 +204,7 @@ def read_html(list_of_adverts):
         """
         try:
             salary = advert.find('th', string='Salary:').find_next_sibling('td').text
-        except:
+        except AttributeError:
             return ''
 
         # Remove carriage returns, tabs, brackets,slashes and commas
@@ -220,7 +239,7 @@ def read_html(list_of_adverts):
                 # Remove trailing -s (these happen when salaries are given as e.g. £30000-£40000, so both ends
                 # of the range will already be encapsulated and trailing - can be ignored)
                 salary_cleaned=salary_cleaned.strip('-')
-                
+
                 # Turn '40k' back into '40000', etc
                 salary_cleaned=salary_cleaned.replace('k','000').replace('K','000')
 
@@ -234,7 +253,7 @@ def read_html(list_of_adverts):
 
                 try:
                     salary_value=float(salary_cleaned)
-                except:
+                except ValueError:
                     continue
 
                 # Convert to GBP
@@ -253,20 +272,21 @@ def read_html(list_of_adverts):
 
                 salaries.append(salary_gbp)
 
-            # After all the fireworks, check we actually got some sane salary values out, else return ''
+            # After all the fireworks, check we actually got sane salary values out, else return ''
 
             if len(salaries)==0:
                 return ''
 
-            else:
-                return np.mean(salaries)
+            return np.mean(salaries)
 
         # Create a dictionary of currencies to scan for with their conversion rates
 
-        # Format: tuple of symbols, conversion rate from currency to GBP  They will be looked for in this order,
-        # so keep USD near the bottom so '$' doesnt trigger for 'AUS $', for example
+        # Format: tuple of symbols, conversion rate from currency to GBP  They will be looked for
+        # in this order, so keep USD near the bottom so '$' doesnt trigger for 'AUS $', for example
 
-        # Currencies based on interatively looking through unparseable files to see what could scoop more values.
+        # Currencies based on interatively looking through unparseable files to see what could
+        # scoop more values.
+
         # Exchange rates from xe.com in Sep 2023
 
         currencies=OrderedDict()
@@ -345,6 +365,7 @@ def read_html(list_of_adverts):
                 role = find_role(advert)
                 organisation = find_organisation(advert)
                 location = find_location(advert)
+                country = find_country(advert)
 
                 # Add the info to the data list
                 data.append(title)
@@ -354,6 +375,7 @@ def read_html(list_of_adverts):
                 data.append(role)
                 data.append(organisation)
                 data.append(location)
+                data.append(country)
 
         # Add data to a list of lists which will later be transformed into a df
         big_data_list.append(data)
@@ -362,6 +384,20 @@ def read_html(list_of_adverts):
         print('Processed ' + str(sanity_counter) + ' jobs', end='\r')
 
     df = pd.DataFrame.from_records(big_data_list)
-    df.columns = ['filename', 'job title', 'date', 'year', 'salary', 'role', 'organisation', 'location']
+
+    try:
+        df.columns = [
+            'filename',
+            'job title',
+            'date',
+            'year',
+            'salary',
+            'role',
+            'organisation',
+            'location',
+            'country',
+        ]
+    except ValueError:
+        print('--- folder is empty, skipping ---')
 
     return df

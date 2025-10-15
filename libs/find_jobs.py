@@ -3,10 +3,11 @@
 
 from matplotlib import pyplot as plt
 import numpy as np
-from .parse_csv import export_to_csv
 
 import pandas as pd
 import settings
+
+from .parse_csv import export_to_csv
 
 def clean_job_titles(df):
 
@@ -18,7 +19,9 @@ def clean_job_titles(df):
 
 def date_and_sort(df):
     """
-    Drops all the rows that lack date data, then converts the date col to datetime and sorts the data by date
+    Drops all the rows that lack date data, then converts the date col to datetime and sorts the
+    data by date.
+
     :param df: all the parsed job advert data
     :return: the same df, but with the date data cleaned and sorted
     """
@@ -33,6 +36,7 @@ def date_and_sort(df):
 def jobs_per_year(df):
     """
     Finds number of job adverts per year so we can work out percentages later
+    
     :param df: all the parsed job advert data
     :return: a dict of year and number of adverts available
     """
@@ -45,6 +49,7 @@ def jobs_per_year(df):
 def find_jobs(df):
     """
     Searches the job titles to find titles of interest.
+    
     :param df: the parsed info from the job adverts
     :return: a df with additional cols identifying rows of interest
     """
@@ -152,8 +157,8 @@ def get_and_plot_salaries(df,resultspath,filedate,df2=None):
     years=range(min_year,max_year+1)
 
     # Store four values for plotting: mean salary (stored in 'salary'), clipped mean salary (mean
-    # of the salaries after removing values outside the IQR, to remove outlier influence), max salary
-    # and min salary.
+    # of the salaries after removing values outside the IQR, to remove outlier influence), max
+    # salary and min salary.
 
     df_data={
         'salaries':[],
@@ -183,12 +188,12 @@ def get_and_plot_salaries(df,resultspath,filedate,df2=None):
 
             # Calculate interquartile range for clipped_salaries
 
-            Q1 = df_slice['salary'].quantile(0.25)
-            Q3 = df_slice['salary'].quantile(0.75)
+            q1 = df_slice['salary'].quantile(0.25)
+            q3 = df_slice['salary'].quantile(0.75)
 
             # Remove values outside the IQR for clipped_salaries
 
-            iq_df_slice = df_slice.query('@Q1 <= salary <= @Q3')
+            iq_df_slice = df_slice.query('@q1 <= salary <= @q3')
 
             # Append mean, clipped mean, max and min salaries to the lists
 
@@ -216,12 +221,12 @@ def get_and_plot_salaries(df,resultspath,filedate,df2=None):
                 df2_data['clipped_salaries'].append(np.nan)
                 df2_data['max_salaries'].append(np.nan)
                 df2_data['min_salaries'].append(np.nan)
-            
-            else:
-                Q1 = df_slice['salary'].quantile(0.25)
-                Q3 = df_slice['salary'].quantile(0.75)
 
-                iq_df_slice = df_slice.query('@Q1 <= salary <= @Q3')
+            else:
+                q1 = df_slice['salary'].quantile(0.25)
+                q3 = df_slice['salary'].quantile(0.75)
+
+                iq_df_slice = df_slice.query('@q1 <= salary <= @q3')
 
                 df2_data['salaries'].append(np.mean(df_slice['salary']))
                 df2_data['clipped_salaries'].append(np.mean(iq_df_slice['salary']))

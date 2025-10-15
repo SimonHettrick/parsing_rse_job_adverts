@@ -99,7 +99,7 @@ def scrape_from_raw(datastores, logfile, start_time):
 
     # ===== Add new files to database =====
 
-    conn = sqlite3.connect(settings.RESULTSPATH+'jobs.sqlite3')
+    conn = sqlite3.connect(settings.DB_LOCATION)
 
     cursor = conn.cursor()
     cursor.execute("""
@@ -136,7 +136,7 @@ def scrape_from_raw(datastores, logfile, start_time):
     db_df.to_sql('jobs', conn, if_exists='append', index=False)
     conn.commit()
 
-    with open(settings.RESULTSPATH+'jobs.sqlite3.stats', 'w') as fstats:
+    with open(settings.DB_LOCATION+'.stats', 'w') as fstats:
 
         fstats.write('Field name,Valid Values,Invalid Values\n')
         for column in db_df.columns:

@@ -11,7 +11,7 @@ import settings
 def clean_job_titles(df):
 
     # Clean rows that have missing title data
-    df.dropna(subset=['job title'], inplace=True)
+    df.dropna(subset=['job_title'], inplace=True)
 
     return df
 
@@ -23,9 +23,9 @@ def date_and_sort(df):
     :return: the same df, but with the date data cleaned and sorted
     """
 
-    df = df[df['date']!='no_data']
-    df['date'] = pd.to_datetime(df['date'])
-    df.sort_values(by=['date'], inplace=True, ascending=True)
+    df = df[df['start_date']!='no_data']
+    df['start_date'] = pd.to_datetime(df['start_date'])
+    df.sort_values(by=['start_date'], inplace=True, ascending=True)
 
     return df
 
@@ -50,14 +50,7 @@ def find_jobs(df):
     """
 
     for current_job in settings.jobs_of_interest:
-        df[current_job] = np.where(df['job title'].str.contains(current_job), True, False)
-
-    # These find the rows where the job title matches the search term and creates a new column marked as True
-
-    #df['research software engineer'] = np.where(df['job title'].str.contains('research software engineer'), True, False)
-    #df['software developer'] = np.where(df['job title'].str.contains('software developer'), True, False)
-    #df['software engineer'] = np.where(df['job title'].str.contains('software engineer'), True, False)
-    #df['research engineer'] = np.where(df['job title'].str.contains('research engineer'), True, False)
+        df[current_job] = np.where(df['job_title'].str.contains(current_job), True, False)
 
     return df
 
@@ -76,7 +69,7 @@ def enhance(df_original):
 
     # Flag jobs that are not of interest and remove them
     for not_job in settings.avoid_jobs:
-        df.loc[:,'not_job'] = np.where(df['job title'].str.contains(not_job), True, False)
+        df.loc[:,'not_job'] = np.where(df['job_title'].str.contains(not_job), True, False)
         # The any_job col AND "NOT of not_job" will result in True only for those jobs that include
         # terms from the jobs_of_interest list and do not include terms from the avoid_jobs list
         df.loc[:,'keep_job'] = df['any_job'] & ~df['not_job']
@@ -131,18 +124,18 @@ def plot_job_summary(raw_data,interest_data,summary,resultspath,filedate):
     plt.savefig(resultspath + 'all_jobs_per_year_' + filedate + '.png')
     plt.close()
 
-    datespan = (raw_data['date'].max()-raw_data['date'].min()).days
+    datespan = (raw_data['start_date'].max()-raw_data['start_date'].min()).days
 
     plt.figure()
     ax = plt.axes()
-    raw_data.hist('date',bins = datespan // 28,ax=ax)
+    raw_data.hist('start_date',bins = datespan // 28,ax=ax)
     plt.grid(False)
     plt.savefig(resultspath + 'all_jobs_per_week_' + filedate + '.png')
     plt.close()
 
     plt.figure()
     ax = plt.axes()
-    interest_data.hist('date',bins = datespan // 28,ax=ax)
+    interest_data.hist('start_date',bins = datespan // 28,ax=ax)
     plt.grid(False)
     plt.savefig(resultspath + 'rse_jobs_per_week_' + filedate + '.png')
     plt.close()

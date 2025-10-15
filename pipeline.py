@@ -2,6 +2,7 @@
 # encoding: utf-8
 
 import sys
+import sqlite3
 import time
 from datetime import datetime
 
@@ -38,13 +39,21 @@ def main():
     logfile = open(RESULTSPATH + 'pipeline_log_'+flndate+'.txt', 'w')
 
     if not '--from-db' in in_args:
-        df = raw.scrape_from_raw(
+        raw.scrape_from_raw(
             datastores=DATASTORES,
             logfile=logfile,
             start_time=now,
         )
-    else:
-        raise NotImplementedError
+
+    with sqlite3.connect(settings.DB_LOCATION) as conn:
+
+        df = pd.read_sql_query("SELECT * FROM jobs", conn)
+
+
+    # ===== Annotate database =====
+
+    df['year'] = pd.DatetimeIndex(df['start_date']).year
+    df['salary'] = pd.to_numeric(df['salary'])
 
 
     # ===== Find jobs =====
@@ -55,7 +64,7 @@ def main():
     logfile.write('Analysing merged jobs list')
     # Get parsed job advert data
     print('Extracting date information...')
-    df['date']= pd.to_datetime(df['date'],format='mixed')
+    df['start_date']= pd.to_datetime(df['start_date'],format='mixed')
 
     # Logging
     logfile.write('There were ' + str(len(df)) + ' parsed job adverts' + '\n \n')

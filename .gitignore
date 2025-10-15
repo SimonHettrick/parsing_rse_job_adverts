@@ -41,3 +41,4 @@ raw_csvs/
 test_job_ads/
 rsejobs.db
 rsejobs.db.stats
+db/

@@ -48,15 +48,36 @@ def read_html(list_of_adverts):
         try:
             title = advert.find('h1').text
             if len(title) == 0:
-                title = ''
+                title = None
         except AttributeError:
-            title = ''
+            title = None
 
-        if title != '':
+        if title != None:
             title = re.sub(clean_lb, '', title)
             title = title.lower()
 
         return title
+
+
+    def find_description(advert):
+        """
+        Find the description from the job advert
+        :param advert: the beatiful soup parsed version of an advert
+        :return: a job description
+        """
+        try:
+            dlist = advert.find('div', id='job-description').contents
+            description = ''.join(map(str, dlist))
+            if description is None:
+                return None
+
+        except AttributeError:
+            return None
+
+        description = re.sub(clean_lb, '', description)
+        description = description.lower()
+
+        return description
 
 
     def find_role(advert):
@@ -69,13 +90,13 @@ def read_html(list_of_adverts):
             role = advert.find('p', string='Type / Role:').find_next_sibling('p').text
             role = re.sub(clean_lb, '', role)
         except AttributeError:
-            role = ''
+            role = None
 
         try:
             try_role = advert.find('p', string='Type / Role:').find_next('a').text
             # Only replace the role if the previous role is zero (i.e. don't overwrite
             # a valid date from the last 'try'
-            if role in ('', 'Ok') and try_role not in ('', 'Ok'):
+            if role in (None, '', 'Ok') and try_role not in (None, '', 'Ok'):
                 role = try_role
         except AttributeError:
             pass
@@ -86,7 +107,7 @@ def read_html(list_of_adverts):
                 'input').attrs['value']
             # Only replace the role if the previous role is zero (i.e. don't overwrite
             # a valid date from the last 'try'
-            if role in ('', 'Ok') and try_role not in ('', 'Ok'):
+            if role in (None, '', 'Ok') and try_role not in (None, '', 'Ok'):
                 role = try_role
         except AttributeError:
             pass
@@ -97,13 +118,12 @@ def read_html(list_of_adverts):
                 'input').attrs['value']
             # Only replace the role if the previous role is zero (i.e. don't overwrite
             # a valid date from the last 'try'
-            if role in ('', 'Ok') and try_role not in ('', 'Ok'):
+            if role in (None, '', 'Ok') and try_role not in (None, '', 'Ok'):
                 role = try_role
         except AttributeError:
             pass
 
-        print(role)
-        if role !='':
+        if role not in (None, ''):
             role = re.sub(clean_lb, '', role)
             role = role.lower()
 
@@ -119,9 +139,9 @@ def read_html(list_of_adverts):
         try:
             organisation = advert.find('h3').text.split('-',1)[0]
         except AttributeError:
-            organisation = ''
+            organisation = None
 
-        if organisation !='':
+        if organisation not in ('', None):
             organisation = re.sub(clean_lb, '', organisation)
             organisation = organisation.lower()
 
@@ -138,14 +158,14 @@ def read_html(list_of_adverts):
             for ctype in ('td', 'th'):
                 try:
                     value = advert.find(ctype, string=search_string).find_next_sibling('td').text
-                    if value != '':
+                    if value not in ('', None):
                         break
                 except AttributeError:
-                    value=''
-            if value!='':
+                    value=None
+            if value not in ('', None):
                 break
 
-        if value !='':
+        if value not in ('', None):
             value = re.sub(clean_lb, '', value)
             value = value.lower()
             value = value.strip()
@@ -155,9 +175,12 @@ def read_html(list_of_adverts):
 
     def find_date(advert, search_strings):
         """
-        Find the date on which the advert was placed
+        Find a date labelled with any of the labels passed as search_strings
         :param advert: the beautiful soup parsed version of an advert
-        :return: a date on which the advert was placed
+        :param search_strings: a list of strings (from high to low priority)
+                                to look for when searching for the required
+                                date.
+        :return: a date matching the relevant
         """
 
         for search_string in search_strings:
@@ -178,7 +201,7 @@ def read_html(list_of_adverts):
             except AttributeError:
                 pass
 
-        return ''
+        return None
 
 
     def find_country(advert):
@@ -209,7 +232,7 @@ def read_html(list_of_adverts):
         try:
             salary = advert.find('th', string='Salary:').find_next_sibling('td').text
         except AttributeError:
-            return '', ''
+            return None, None
 
         # Remove carriage returns, tabs, brackets,slashes and commas
         salary_string = salary.replace('\n', ' ').replace('\t', ' ').replace(',', '').replace('(',' ').replace(')',' ')
@@ -279,7 +302,7 @@ def read_html(list_of_adverts):
             # After all the fireworks, check we actually got sane salary values out, else return ''
 
             if len(salaries)==0:
-                return '', ''
+                return None, None
 
             return np.min(salaries), np.max(salaries)
 
@@ -327,7 +350,7 @@ def read_html(list_of_adverts):
 
         # If no symbols yielded sane results, return empty string
 
-        return '', ''
+        return None, None
 
 
     big_data_list = []
@@ -355,6 +378,7 @@ def read_html(list_of_adverts):
 
                 #Extract info I want
                 title = find_title(advert)
+                description = find_description(advert)
                 contract_type = find_generic(advert, ['Contract Type:'])
                 placed_on = find_date(advert, ['Placed On:'])
                 closes_on = find_date(advert, ['Closes:', 'Expires:'])
@@ -368,6 +392,7 @@ def read_html(list_of_adverts):
 
                 # Add the info to the data list
                 data.append(title)
+                data.append(description)
                 data.append(contract_type)
                 data.append(placed_on)
                 data.append(closes_on)
@@ -392,6 +417,7 @@ def read_html(list_of_adverts):
         df.columns = [
             'filename',
             'job_title',
+            'description',
             'contract_type',
             'placed_on',
             'closes_on',

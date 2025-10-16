@@ -117,6 +117,7 @@ def parse_from_raw(datastores, logfile, start_time):
             id INTEGER PRIMARY KEY,
             filename TEXT NOT NULL, 
             job_title TEXT,
+            description TEXT,
             contract_type TEXT, 
             placed_on DATE,
             closes_on DATE,

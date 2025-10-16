@@ -26,9 +26,10 @@ def date_and_sort(df):
     :return: the same df, but with the date data cleaned and sorted
     """
 
-    df = df[df['start_date']!='no_data']
-    df['start_date'] = pd.to_datetime(df['start_date'])
-    df.sort_values(by=['start_date'], inplace=True, ascending=True)
+    df = df[df['placed_on']!='no_data']
+    df['placed_on'] = pd.to_datetime(df['placed_on'])
+    df['closes_on'] = pd.to_datetime(df['closes_on'])
+    df.sort_values(by=['placed_on'], inplace=True, ascending=True)
 
     return df
 
@@ -129,18 +130,18 @@ def plot_job_summary(raw_data,interest_data,summary,resultspath,filedate):
     plt.savefig(resultspath + 'all_jobs_per_year_' + filedate + '.png')
     plt.close()
 
-    datespan = (raw_data['start_date'].max()-raw_data['start_date'].min()).days
+    datespan = (raw_data['placed_on'].max()-raw_data['placed_on'].min()).days
 
     plt.figure()
     ax = plt.axes()
-    raw_data.hist('start_date',bins = datespan // 28,ax=ax)
+    raw_data.hist('placed_on',bins = datespan // 28,ax=ax)
     plt.grid(False)
     plt.savefig(resultspath + 'all_jobs_per_week_' + filedate + '.png')
     plt.close()
 
     plt.figure()
     ax = plt.axes()
-    interest_data.hist('start_date',bins = datespan // 28,ax=ax)
+    interest_data.hist('placed_on',bins = datespan // 28,ax=ax)
     plt.grid(False)
     plt.savefig(resultspath + 'rse_jobs_per_week_' + filedate + '.png')
     plt.close()
@@ -174,7 +175,7 @@ def get_and_plot_salaries(df,resultspath,filedate,df2=None):
 
         # Remove all jobs with no salary data
 
-        df_slice=df_slice.dropna(subset = ['salary'])
+        df_slice=df_slice.dropna(subset = ['salary_max'])
 
         # If no jobs were present in a given year, append NaNs
 
@@ -188,19 +189,19 @@ def get_and_plot_salaries(df,resultspath,filedate,df2=None):
 
             # Calculate interquartile range for clipped_salaries
 
-            q1 = df_slice['salary'].quantile(0.25)
-            q3 = df_slice['salary'].quantile(0.75)
+            q1 = df_slice['salary_max'].quantile(0.25)
+            q3 = df_slice['salary_max'].quantile(0.75)
 
             # Remove values outside the IQR for clipped_salaries
 
-            iq_df_slice = df_slice.query('@q1 <= salary <= @q3')
+            iq_df_slice = df_slice.query('@q1 <= salary_max <= @q3')
 
             # Append mean, clipped mean, max and min salaries to the lists
 
-            df_data['salaries'].append(np.mean(df_slice['salary']))
-            df_data['clipped_salaries'].append(np.mean(iq_df_slice['salary']))
-            df_data['max_salaries'].append(np.max(df_slice['salary']))
-            df_data['min_salaries'].append(np.min(df_slice['salary']))
+            df_data['salaries'].append(np.mean(df_slice['salary_max']))
+            df_data['clipped_salaries'].append(np.mean(iq_df_slice['salary_max']))
+            df_data['max_salaries'].append(np.max(df_slice['salary_max']))
+            df_data['min_salaries'].append(np.min(df_slice['salary_max']))
 
     # Repeat the process for the second dataset if given
 
@@ -214,7 +215,7 @@ def get_and_plot_salaries(df,resultspath,filedate,df2=None):
 
         for year in years:
             df_slice=df2[df2['year'] == year]
-            df_slice=df_slice.dropna(subset = ['salary'])
+            df_slice=df_slice.dropna(subset = ['salary_max'])
 
             if len(df_slice)==0:
                 df2_data['salaries'].append(np.nan)
@@ -223,15 +224,15 @@ def get_and_plot_salaries(df,resultspath,filedate,df2=None):
                 df2_data['min_salaries'].append(np.nan)
 
             else:
-                q1 = df_slice['salary'].quantile(0.25)
-                q3 = df_slice['salary'].quantile(0.75)
+                q1 = df_slice['salary_max'].quantile(0.25)
+                q3 = df_slice['salary_max'].quantile(0.75)
 
-                iq_df_slice = df_slice.query('@q1 <= salary <= @q3')
+                iq_df_slice = df_slice.query('@q1 <= salary_max <= @q3')
 
-                df2_data['salaries'].append(np.mean(df_slice['salary']))
-                df2_data['clipped_salaries'].append(np.mean(iq_df_slice['salary']))
-                df2_data['max_salaries'].append(np.max(df_slice['salary']))
-                df2_data['min_salaries'].append(np.min(df_slice['salary']))
+                df2_data['salaries'].append(np.mean(df_slice['salary_max']))
+                df2_data['clipped_salaries'].append(np.mean(iq_df_slice['salary_max']))
+                df2_data['max_salaries'].append(np.max(df_slice['salary_max']))
+                df2_data['min_salaries'].append(np.min(df_slice['salary_max']))
 
     # Define the plotter for compactness' sake
 
@@ -241,7 +242,7 @@ def get_and_plot_salaries(df,resultspath,filedate,df2=None):
         plt.title(title)
         plt.plot(years,df_data[data_label],label='RSE Jobs')
         plt.xlabel('Year')
-        plt.ylabel('Salary (£/yr)')
+        plt.ylabel('Max Salary (£/yr)')
         if df2 is not None:
             plt.plot(years,df2_data[data_label],label='All Jobs')
             plt.legend()

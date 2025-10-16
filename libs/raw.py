@@ -39,7 +39,7 @@ def parse_from_raw(datastores, logfile, start_time):
         # Logging
         logfile.write(f'There were {len(dfs[datastore])} job adverts were parsed into the data file\n')
 
-        n_invalid = sum((dfs[datastore]['date'] == '') & (dfs[datastore]['job title'] == ''))
+        n_invalid = sum((dfs[datastore]['placed_on'] == '') & (dfs[datastore]['job_title'] == ''))
 
         logfile.write(f' - {n_invalid} were missing date and/or title data\n\n')
 
@@ -81,7 +81,7 @@ def parse_from_raw(datastores, logfile, start_time):
     # ===== Add new files to tar =====
 
     # Get the valid years
-    df=df.loc[df.year!='']
+    df['year'] = pd.DatetimeIndex(df['placed_on']).year
     valid_years = df['year'].unique()
 
     for year in valid_years:
@@ -116,10 +116,15 @@ def parse_from_raw(datastores, logfile, start_time):
         CREATE TABLE IF NOT EXISTS jobs (
             id INTEGER PRIMARY KEY,
             filename TEXT NOT NULL, 
-            job_title TEXT, 
-            start_date DATE,
-            salary FLOAT,
+            job_title TEXT,
+            contract_type TEXT, 
+            placed_on DATE,
+            closes_on DATE,
+            salary_min FLOAT,
+            salary_max FLOAT,
             role TEXT,
+            hours TEXT,
+            job_ref TEXT,
             organisation TEXT,
             location TEXT,
             country TEXT,
@@ -136,13 +141,9 @@ def parse_from_raw(datastores, logfile, start_time):
         prev_records = []
 
     db_df = df.loc[~df['filename'].isin(prev_records)]
+    db_df = db_df.replace('', None)
+    # Reformat the raw df to be compatible with the db
 
-    # Reformat the raw df to be compatible with the df
-    rename_cols = {
-        'job title':'job_title',
-        'date':'start_date',
-    }
-    db_df = db_df.rename(columns=rename_cols)
     db_df.drop(['year'], axis=1, inplace=True)
     db_df.to_sql('jobs', conn, if_exists='append', index=False)
     conn.commit()

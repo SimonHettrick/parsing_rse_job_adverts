@@ -59,31 +59,6 @@ def read_html(list_of_adverts):
         return title
 
 
-    def find_date(advert):
-        """
-        Find the date on which the advert was placed
-        :param advert: the beautiful soup parsed version of an advert
-        :return: a date on which the advert was placed
-        """
-        try:
-            date = advert.find('td', string='Placed on:').find_next_sibling('td').text
-            date = date.replace('th','').replace('1st','1').replace('2nd','2').replace('3rd','3')
-        except AttributeError:
-            date = ''
-
-        # Only replace the date if the previous date is '' (i.e. don't overwrite
-        # a valid date from the last 'try'
-        if date == '':
-            try:
-                date = advert.find('th', string='Placed On:').find_next_sibling('td').text
-                date = date.replace('th','').replace('1st','1')
-                date = date.replace('2nd','2').replace('3rd','3')
-            except AttributeError:
-                pass
-
-        return date
-
-
     def find_role(advert):
         """
         Find the role (i.e. the job family) in the advert
@@ -100,7 +75,7 @@ def read_html(list_of_adverts):
             try_role = advert.find('p', string='Type / Role:').find_next('a').text
             # Only replace the role if the previous role is zero (i.e. don't overwrite
             # a valid date from the last 'try'
-            if role == '':
+            if role in ('', 'Ok') and try_role not in ('', 'Ok'):
                 role = try_role
         except AttributeError:
             pass
@@ -111,7 +86,7 @@ def read_html(list_of_adverts):
                 'input').attrs['value']
             # Only replace the role if the previous role is zero (i.e. don't overwrite
             # a valid date from the last 'try'
-            if role == '':
+            if role in ('', 'Ok') and try_role not in ('', 'Ok'):
                 role = try_role
         except AttributeError:
             pass
@@ -122,11 +97,12 @@ def read_html(list_of_adverts):
                 'input').attrs['value']
             # Only replace the role if the previous role is zero (i.e. don't overwrite
             # a valid date from the last 'try'
-            if role == '':
+            if role in ('', 'Ok') and try_role not in ('', 'Ok'):
                 role = try_role
         except AttributeError:
             pass
 
+        print(role)
         if role !='':
             role = re.sub(clean_lb, '', role)
             role = role.lower()
@@ -151,30 +127,58 @@ def read_html(list_of_adverts):
 
         return organisation
 
-    def find_location(advert):
+
+    def find_generic(advert, search_strings):
         """
         Find the location (i.e. the city where the job is based) in the advert
         :param advert: the beatiful soup parsed version of an advert
         :return: the location from the advert
         """
-        try:
-            location = advert.find('td', string='Location:').find_next_sibling('td').text
-        except AttributeError:
-            location = ''
+        for search_string in search_strings:
+            for ctype in ('td', 'th'):
+                try:
+                    value = advert.find(ctype, string=search_string).find_next_sibling('td').text
+                    if value != '':
+                        break
+                except AttributeError:
+                    value=''
+            if value!='':
+                break
 
-        try:
-            try_location = advert.find('th', string='Location:').find_next_sibling('td').text
-            if location == '':
-                location = try_location
-        except AttributeError:
-            pass
+        if value !='':
+            value = re.sub(clean_lb, '', value)
+            value = value.lower()
+            value = value.strip()
 
-        if location !='':
-            location = re.sub(clean_lb, '', location)
-            location = location.lower()
-            location = location.strip()
+        return value
 
-        return location
+
+    def find_date(advert, search_strings):
+        """
+        Find the date on which the advert was placed
+        :param advert: the beautiful soup parsed version of an advert
+        :return: a date on which the advert was placed
+        """
+
+        for search_string in search_strings:
+            try:
+                date = advert.find('td', string=search_string).find_next_sibling('td').text
+                date = date.replace('th','').replace('1st','1').replace('2nd','2').replace('3rd','3')
+                return date
+            except AttributeError:
+                pass
+
+            # Only replace the date if the previous date is '' (i.e. don't overwrite
+            # a valid date from the last 'try'
+            try:
+                date = advert.find('th', string=search_string).find_next_sibling('td').text
+                date = date.replace('th','').replace('1st','1')
+                date = date.replace('2nd','2').replace('3rd','3')
+                return date
+            except AttributeError:
+                pass
+
+        return ''
 
 
     def find_country(advert):
@@ -205,14 +209,14 @@ def read_html(list_of_adverts):
         try:
             salary = advert.find('th', string='Salary:').find_next_sibling('td').text
         except AttributeError:
-            return ''
+            return '', ''
 
         # Remove carriage returns, tabs, brackets,slashes and commas
         salary_string = salary.replace('\n', ' ').replace('\t', ' ').replace(',', '').replace('(',' ').replace(')',' ')
 
         # Remove spaces either side of dashes and slashes to better locate salary ranges,
         # convert slashes into dashes so they will be treated the same (e.g. 10000-30000 and
-        # 10000/30000 will both be treated as 20000).
+        # 10000/30000 will both be treated as min 10000, max 30000).
         salary_string = salary_string.replace('- ','-').replace(' -','-')
         salary_string = salary_string.replace(' /','-').replace('/ ','-').replace('/','-')
 
@@ -275,9 +279,9 @@ def read_html(list_of_adverts):
             # After all the fireworks, check we actually got sane salary values out, else return ''
 
             if len(salaries)==0:
-                return ''
+                return '', ''
 
-            return np.mean(salaries)
+            return np.min(salaries), np.max(salaries)
 
         # Create a dictionary of currencies to scan for with their conversion rates
 
@@ -312,18 +316,18 @@ def read_html(list_of_adverts):
             conversion=currencies[currency]
             for symbol in currency:
                 if symbol in currency:
-                    salary=extract_values_by_currency(salary_string,symbol,conversion)
+                    min_salary, max_salary=extract_values_by_currency(salary_string,symbol,conversion)
 
                     # If salary succesfully found, return it and dont run the rest of the tests
 
-                    if salary!='':
-                        return salary
+                    if min_salary!='':
+                        return min_salary, max_salary
                 else:
                     continue
 
         # If no symbols yielded sane results, return empty string
 
-        return ''
+        return '', ''
 
 
     big_data_list = []
@@ -351,28 +355,27 @@ def read_html(list_of_adverts):
 
                 #Extract info I want
                 title = find_title(advert)
-                date = find_date(advert)
-                salary = find_salary(advert)
-
-                # Extract year directly from date variable (there's two forms of date, hence the if)
-                if date=='':
-                    year = ''
-                elif '-' in date:
-                    year = str(date)[:4]
-                else:
-                    year = str(date)[-4:]
-
+                contract_type = find_generic(advert, ['Contract Type:'])
+                placed_on = find_date(advert, ['Placed On:'])
+                closes_on = find_date(advert, ['Closes:', 'Expires:'])
+                salary_min, salary_max = find_salary(advert)
                 role = find_role(advert)
+                hours = find_generic(advert, ['Hours:'])
+                job_ref = find_generic(advert, ['Job Ref:', 'Reference:'])
                 organisation = find_organisation(advert)
-                location = find_location(advert)
+                location = find_generic(advert, ['Location:'])
                 country = find_country(advert)
 
                 # Add the info to the data list
                 data.append(title)
-                data.append(date)
-                data.append(year)
-                data.append(salary)
+                data.append(contract_type)
+                data.append(placed_on)
+                data.append(closes_on)
+                data.append(salary_min)
+                data.append(salary_max)
                 data.append(role)
+                data.append(hours)
+                data.append(job_ref)
                 data.append(organisation)
                 data.append(location)
                 data.append(country)
@@ -388,11 +391,15 @@ def read_html(list_of_adverts):
     try:
         df.columns = [
             'filename',
-            'job title',
-            'date',
-            'year',
-            'salary',
+            'job_title',
+            'contract_type',
+            'placed_on',
+            'closes_on',
+            'salary_min',
+            'salary_max',
             'role',
+            'hours',
+            'job_ref',
             'organisation',
             'location',
             'country',

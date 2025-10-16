@@ -56,9 +56,9 @@ def main():
 
     # ===== Annotate database =====
 
-    df['year'] = pd.DatetimeIndex(df['start_date']).year                # pylint: disable=no-member
-    df['salary'] = pd.to_numeric(df['salary'])
-
+    df['year'] = pd.DatetimeIndex(df['placed_on']).year                # pylint: disable=no-member
+    df['salary_min'] = pd.to_numeric(df['salary_min'])
+    df['salary_max'] = pd.to_numeric(df['salary_max'])
 
     # ===== Find jobs =====
 
@@ -68,7 +68,8 @@ def main():
     logfile.write('Analysing merged jobs list')
     # Get parsed job advert data
     print('Extracting date information...')
-    df['start_date']= pd.to_datetime(df['start_date'],format='mixed')
+    df['placed_on']= pd.to_datetime(df['placed_on'],format='mixed')
+    df['closes_on']= pd.to_datetime(df['closes_on'],format='mixed')
 
     # Logging
     logfile.write('There were ' + str(len(df)) + ' parsed job adverts' + '\n \n')

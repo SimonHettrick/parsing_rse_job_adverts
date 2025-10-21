@@ -204,7 +204,7 @@ def read_html(list_of_adverts):
         return None
 
 
-    def find_country(advert):
+    def find_loc_data(advert):
         """
         Find the country where the job is based
         :param advert: the beatiful soup parsed version of an advert
@@ -212,15 +212,25 @@ def read_html(list_of_adverts):
         """
         locscript = advert.find('script', type="application/ld+json")
         if not locscript:
-            return None
+            return None, None, None
 
         parsed_script = json.loads(locscript.string)
         try:
+            city = parsed_script['jobLocation'][0]['address']['addressLocality']
+        except KeyError:
+            city = None
+
+        try:
+            region = parsed_script['jobLocation'][0]['address']['addressRegion']
+        except KeyError:
+            region = None
+
+        try:
             country = parsed_script['jobLocation'][0]['address']['addressCountry']
         except KeyError:
-            return None
+            country = None
 
-        return country
+        return city, region, country
 
 
     def find_salary(advert):
@@ -387,8 +397,8 @@ def read_html(list_of_adverts):
                 hours = find_generic(advert, ['Hours:'])
                 job_ref = find_generic(advert, ['Job Ref:', 'Reference:'])
                 organisation = find_organisation(advert)
-                location = find_generic(advert, ['Location:'])
-                country = find_country(advert)
+                location_string = find_generic(advert, ['Location:'])
+                city, region, country = find_loc_data(advert)
 
                 # Add the info to the data list
                 data.append(title)
@@ -402,7 +412,9 @@ def read_html(list_of_adverts):
                 data.append(hours)
                 data.append(job_ref)
                 data.append(organisation)
-                data.append(location)
+                data.append(location_string)
+                data.append(city)
+                data.append(region)
                 data.append(country)
 
         # Add data to a list of lists which will later be transformed into a df
@@ -427,7 +439,9 @@ def read_html(list_of_adverts):
             'hours',
             'job_ref',
             'organisation',
-            'location',
+            'location_string',
+            'city',
+            'region',
             'country',
         ]
     except ValueError:

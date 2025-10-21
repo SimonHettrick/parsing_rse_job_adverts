@@ -127,7 +127,9 @@ def parse_from_raw(datastores, logfile, start_time):
             hours TEXT,
             job_ref TEXT,
             organisation TEXT,
-            location TEXT,
+            location_string TEXT,
+            city TEXT,
+            region TEXT,
             country TEXT,
             source TEXT
         );

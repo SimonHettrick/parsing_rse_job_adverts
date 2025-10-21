@@ -68,11 +68,17 @@ def read_html(list_of_adverts):
         try:
             dlist = advert.find('div', id='job-description').contents
             description = ''.join(map(str, dlist))
-            if description is None:
-                return None
 
         except AttributeError:
-            return None
+            locscript = advert.find('script', type="application/ld+json")
+            if not locscript:
+                return None
+            parsed_script = json.loads(locscript.string)
+            try:
+                description = parsed_script['description']
+            except KeyError:
+                return None
+
 
         description = re.sub(clean_lb, '', description)
         description = description.lower()
@@ -242,7 +248,10 @@ def read_html(list_of_adverts):
         try:
             salary = advert.find('th', string='Salary:').find_next_sibling('td').text
         except AttributeError:
-            return None, None
+            try:
+                salary = advert.find('th', string='Funding amount:').find_next_sibling('td').text
+            except AttributeError:
+                return None, None
 
         # Remove carriage returns, tabs, brackets,slashes and commas
         salary_string = salary.replace('\n', ' ').replace('\t', ' ').replace(',', '').replace('(',' ').replace(')',' ')

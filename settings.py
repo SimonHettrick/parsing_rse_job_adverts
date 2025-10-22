@@ -1,21 +1,47 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+A collection of settings which can be altered to change the function of the pipeline.
+"""
+
 # === Scraper settings ===
 
+# The repository where the scraped job html files will be stored
 SCRAPE_DATASTORE = './scraped_jobs/'
+
+# The maximum number of jobs to scrape per attempt
 NUM_JOBS = 10000
+
+# The base URL of the job repository to be scraped
 BASE_URL = "http://www.jobs.ac.uk"
+
+# The full URL used to access the current list of job listings
 FULL_URL = f"{BASE_URL}/search/?keywords=*&sort=re&s=1&pageSize={NUM_JOBS}"
 
 
 # === Local storage settings ===
 
-DEFAULT_DATASTORES = ['./job_ads/JobsAcUk/', './job_ads/JOBS_RAW/', SCRAPE_DATASTORE]
+# A list of directories to look for job html files in
+DEFAULT_DATASTORES = ['./job_ads/soton/', './job_ads/edin/', SCRAPE_DATASTORE]
+
+# A list of directories to look for job html files in when running with the --test flag
 TEST_DATASTORES = ['./test_job_ads/soton/', './test_job_ads/edin/', SCRAPE_DATASTORE]
+
+# The path to the location where tarfiles are to be created
+TARPATH = './tarred_jobs/'
+
+# The full path of the database file where the parsed job data is to be stored
 DB_LOCATION = './db/jobs.sqlite'
-RESULTSPATH = './results/'
+
+# The folder to store various auxilliary results and plots from the analysis portion of the
+# pipeline
+RESULTSPATH = './data_products/'
 
 
 # === Analysis settings ===
 
+# A list of substrings considered to be indicators of RSE jobs
 jobs_of_interest = [
     'data scien',
     'data engineer',
@@ -27,4 +53,5 @@ jobs_of_interest = [
     'knowledge exchange',
 ]
 
+# A list of substrings considered to be indicators of non-RSE jobs
 avoid_jobs = [ 'fellow', 'lecturer', 'student', 'tutor', 'profess']

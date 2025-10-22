@@ -1,3 +1,10 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+Library of functions to deal with parsing values of interest out of the raw html
+"""
+
 import glob
 import json
 import os
@@ -52,7 +59,7 @@ def read_html(list_of_adverts):
         except AttributeError:
             title = None
 
-        if title != None:
+        if title is not None:
             title = re.sub(clean_lb, '', title)
             title = title.lower()
 
@@ -104,29 +111,29 @@ def read_html(list_of_adverts):
             # a valid date from the last 'try'
             if role in (None, '', 'Ok') and try_role not in (None, '', 'Ok'):
                 role = try_role
-        except AttributeError:
+        except (AttributeError, IndexError):
             pass
 
         try:
             try_role = \
-            advert.find('b', string='Type / Role:').find_next('div', {'class': 'j-form-input ie-11-width'}).find_next(
-                'input').attrs['value']
+            advert.find('b', string='Type / Role:').find_next(
+                'div', {'class': 'j-form-input ie-11-width'}).find_next('input').attrs['value']
             # Only replace the role if the previous role is zero (i.e. don't overwrite
             # a valid date from the last 'try'
             if role in (None, '', 'Ok') and try_role not in (None, '', 'Ok'):
                 role = try_role
-        except AttributeError:
+        except (AttributeError, IndexError):
             pass
 
         try:
             try_role = \
-            advert.find('p', string='Type / Role:').find_next('div', {'class': 'j-form-input ie-11-width'}).find_next(
-                'input').attrs['value']
+            advert.find('p', string='Type / Role:').find_next(
+                'div', {'class': 'j-form-input ie-11-width'}).find_next('input').attrs['value']
             # Only replace the role if the previous role is zero (i.e. don't overwrite
             # a valid date from the last 'try'
             if role in (None, '', 'Ok') and try_role not in (None, '', 'Ok'):
                 role = try_role
-        except AttributeError:
+        except (AttributeError, IndexError):
             pass
 
         if role not in (None, ''):
@@ -192,7 +199,8 @@ def read_html(list_of_adverts):
         for search_string in search_strings:
             try:
                 date = advert.find('td', string=search_string).find_next_sibling('td').text
-                date = date.replace('th','').replace('1st','1').replace('2nd','2').replace('3rd','3')
+                date = date.replace('th','').replace('1st','1')
+                date = date.replace('2nd','2').replace('3rd','3')
                 return date
             except AttributeError:
                 pass
@@ -223,17 +231,17 @@ def read_html(list_of_adverts):
         parsed_script = json.loads(locscript.string)
         try:
             city = parsed_script['jobLocation'][0]['address']['addressLocality']
-        except KeyError:
+        except (KeyError, IndexError):
             city = None
 
         try:
             region = parsed_script['jobLocation'][0]['address']['addressRegion']
-        except KeyError:
+        except (KeyError, IndexError):
             region = None
 
         try:
             country = parsed_script['jobLocation'][0]['address']['addressCountry']
-        except KeyError:
+        except (KeyError, IndexError):
             country = None
 
         return city, region, country
@@ -254,7 +262,8 @@ def read_html(list_of_adverts):
                 return None, None
 
         # Remove carriage returns, tabs, brackets,slashes and commas
-        salary_string = salary.replace('\n', ' ').replace('\t', ' ').replace(',', '').replace('(',' ').replace(')',' ')
+        salary_string = salary.replace('\n', ' ').replace('\t', ' ').replace(',', '').replace(
+            '(',' ').replace(')',' ')
 
         # Remove spaces either side of dashes and slashes to better locate salary ranges,
         # convert slashes into dashes so they will be treated the same (e.g. 10000-30000 and
@@ -277,19 +286,22 @@ def read_html(list_of_adverts):
                 salary=salary.strip().split(' ')
 
                 # Remove any 'per annum' denotation that wasnt space-separated
-                salary_cleaned=salary[0].replace('pa','').replace('PA','').replace('p.a.','').replace('per','')
+                salary_cleaned=salary[0].replace('pa','').replace('PA','').replace(
+                    'p.a.','').replace('per','')
 
                 # Remove various other symbols, interpret 'xxxxx+' as just 'xxxxx'
                 salary_cleaned=salary_cleaned.replace('+','').replace('*','').replace(';','')
 
-                # Remove trailing -s (these happen when salaries are given as e.g. £30000-£40000, so both ends
-                # of the range will already be encapsulated and trailing - can be ignored)
+                # Remove trailing -s (these happen when salaries are given as e.g. £30000-£40000,
+                # so both ends of the range will already be encapsulated and trailing - can be
+                # ignored)
                 salary_cleaned=salary_cleaned.strip('-')
 
                 # Turn '40k' back into '40000', etc
                 salary_cleaned=salary_cleaned.replace('k','000').replace('K','000')
 
-                # Deal with ranges; deal with low value now, append other value onto the end of the loop list for later
+                # Deal with ranges; deal with low value now, append other value onto the end of the
+                # loop list for later
                 if '-' in salary_cleaned:
                     sc_split=salary_cleaned.split('-')
                     salary_cleaned=sc_split[0]
@@ -358,7 +370,8 @@ def read_html(list_of_adverts):
             conversion=currencies[currency]
             for symbol in currency:
                 if symbol in currency:
-                    min_salary, max_salary=extract_values_by_currency(salary_string,symbol,conversion)
+                    min_salary, max_salary=extract_values_by_currency(
+                        salary_string,symbol,conversion)
 
                     # If salary succesfully found, return it and dont run the rest of the tests
 

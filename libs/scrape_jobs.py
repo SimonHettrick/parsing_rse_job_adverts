@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 
 """
-Script to scrap the different jobs on https://www.jobs.ac.uk
+Library of functions to deal with scraping the different jobs on https://www.jobs.ac.uk
 """
+
 import os
 import errno
 import time
@@ -17,6 +18,7 @@ content_attrs = [{'attrs_id': 'class', 'attrs_content': 'content'},
 
 
 def make_sure_path_exists(path):
+    """A function to check a path exists on disk"""
     try:
         os.makedirs(path)
     except OSError as exception:
@@ -67,8 +69,7 @@ def split_by_results(data, divider="j-search-result__text"):
     :output:
         generator of the same data but split with the divider
     """
-    for job in data.find_all("div", attrs={"class": divider}):
-        yield job
+    yield from data.find_all("div", attrs={"class": divider})
 
 
 def extract_job_url(job):
@@ -96,7 +97,7 @@ def split_info_from_job_url(job_rel_url):
     splitted_url = [i for i in job_rel_url.split("/") if i]
     # The first element of the list is 'job' as the structure
     # of the string is like this:
-    # /job/BJR877/assistant-professor-associate-professor-full-professor-in-computational-environmental-sciences-and-engineering/
+    # /job/BJR877/assistant-professor-associate-professor-in-computational-environmental-sciences/
     if len(splitted_url) != 3:
         raise ValueError
     job_id = splitted_url[1]
@@ -145,6 +146,9 @@ def _extract_ads(data, attrs_id, attrs_content):
 
 
 def extract_ads_info(data):
+    """
+    Return the content of the elements of the html page
+    """
     for attrs in content_attrs:
         content = _extract_ads(data, attrs['attrs_id'], attrs['attrs_content'])
         if len(content) > 0:

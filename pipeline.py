@@ -1,12 +1,18 @@
 #!/usr/bin/env python
-# encoding: utf-8
+# -*- coding: utf-8 -*-
+
+"""
+A full stack pipeline to scrape job postings from the web, package them locally in tarfiles,
+parse their information, store the resultant information in a database, and perform some
+basic analysis on the results.
+"""
 
 import sys
 import sqlite3
 import time
 from datetime import datetime
 
-from libs import find_jobs, parse_csv, raw, scrape_jobs
+from libs import find_jobs, raw, scrape_jobs
 import pandas as pd
 import settings
 
@@ -25,18 +31,18 @@ if '--test' in in_args:
 
 # ---------------------------------------------------
 
-def main():
+def main(run_time, logfile):
     """
     Main function to run program
+
+    :params: a datetime object to use as the 'start time' throughout the pipeline, and
+            an opened file in write mode to use as a log file
     """
 
     # ===== Prep =====
 
     # Logging
-    now = datetime.now()
-
-    flndate = now.strftime("%Y-%m-%d")
-    logfile = open(settings.RESULTSPATH + 'pipeline_log_'+flndate+'.txt', 'w')
+    flndate = run_time.strftime("%Y-%m-%d")
 
     if '--scrape' in in_args:
         logfile.write('Scraping new jobs:')
@@ -46,7 +52,7 @@ def main():
         raw.parse_from_raw(
             datastores=datastores,
             logfile=logfile,
-            start_time=now,
+            start_time=run_time,
         )
 
     with sqlite3.connect(settings.DB_LOCATION) as conn:
@@ -56,7 +62,7 @@ def main():
 
     # ===== Annotate database =====
 
-    df['year'] = pd.DatetimeIndex(df['placed_on']).year                # pylint: disable=no-member
+    df['year'] = pd.DatetimeIndex(df['placed_on']).year                 # pylint: disable=no-member
     df['salary_min'] = pd.to_numeric(df['salary_min'])
     df['salary_max'] = pd.to_numeric(df['salary_max'])
 
@@ -68,8 +74,8 @@ def main():
     logfile.write('Analysing merged jobs list')
     # Get parsed job advert data
     print('Extracting date information...')
-    df['placed_on']= pd.to_datetime(df['placed_on'],format='mixed')
-    df['closes_on']= pd.to_datetime(df['closes_on'],format='mixed')
+    df['placed_on']= pd.to_datetime(df['placed_on'],format='mixed', errors='coerce')
+    df['closes_on']= pd.to_datetime(df['closes_on'],format='mixed', errors='coerce')
 
     # Logging
     logfile.write('There were ' + str(len(df)) + ' parsed job adverts' + '\n \n')
@@ -96,15 +102,6 @@ def main():
     find_jobs.plot_job_summary(df, df_interest, df_summ,settings.RESULTSPATH, flndate)
     find_jobs.get_and_plot_salaries(df_interest, settings.RESULTSPATH, flndate, df2=df)
 
-    # Export data
-    parse_csv.export_to_csv(df, settings.RESULTSPATH, '2_named_processed_jobs_'+flndate, False)
-
-    # Export enhanced data
-    parse_csv.export_to_csv(df_interest, settings.RESULTSPATH, '3_identified_jobs_'+flndate, False)
-
-    # Export data
-    parse_csv.export_to_csv(df_summ, settings.RESULTSPATH, '4_summary_identified_jobs_'+flndate, False)
-
     print(f"--- {round((time.time() - start_time),1)} seconds ---")
     logfile.write('Processing took ' + str(round((time.time() - start_time),1)) + '\n')
 
@@ -112,4 +109,9 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+
+    now = datetime.now()
+
+    fdate = now.strftime("%Y-%m-%d")
+    with open(settings.RESULTSPATH + 'pipeline_log_'+fdate+'.txt', 'w') as lfile:
+        main(run_time=now, logfile=lfile)

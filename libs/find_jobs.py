@@ -70,7 +70,7 @@ def enhance(df_original):
     # Create a column which identifies rows which include any of the jobs of interest
 
     for current_job in settings.jobs_of_interest:
-        mask = df[current_job] == True
+        mask = df[current_job] == True                       # pylint: disable=singleton-comparison
         df.loc[mask, 'any_job'] = True
 
     # Flag jobs that are not of interest and remove them
@@ -80,7 +80,7 @@ def enhance(df_original):
         # terms from the jobs_of_interest list and do not include terms from the avoid_jobs list
         df.loc[:,'keep_job'] = df['any_job'] & ~df['not_job']
         # Limit the df to only those jobs of interest
-        bad_jobs = df.loc[df['keep_job'] == False]
+        bad_jobs = df.loc[df['keep_job'] == False]           # pylint: disable=singleton-comparison
         df.drop(bad_jobs.index,inplace=True)
 
     return df
@@ -189,8 +189,8 @@ def get_and_plot_salaries(df,resultspath,filedate,df2=None):
 
             # Calculate interquartile range for clipped_salaries
 
-            q1 = df_slice['salary_max'].quantile(0.25)
-            q3 = df_slice['salary_max'].quantile(0.75)
+            q1 = df_slice['salary_max'].quantile(0.25)            # pylint: disable=unused-variable
+            q3 = df_slice['salary_max'].quantile(0.75)            # pylint: disable=unused-variable
 
             # Remove values outside the IQR for clipped_salaries
 

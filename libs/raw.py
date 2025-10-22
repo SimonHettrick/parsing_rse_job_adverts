@@ -1,3 +1,11 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+Library of functions to deal with extracting the contents of html files and storing them in sqlite
+and tarfiles.
+"""
+
 from datetime import datetime
 import pathlib
 import shutil
@@ -11,8 +19,26 @@ import settings
 
 
 def parse_from_raw(datastores, logfile, start_time):
+    """
+    Extracts all job listing html files from a number of given directories, sorts them by year and
+    appends them to (or creates) tarfiles to reduce storage space, parses the html for each job to
+    extract a number of useful data parameters and appends these to (or creates) a database of these
+    values.  Ignores duplicates when appending to tarfiles or the db.  NOTE: does NOT delete the
+    original html files.
 
-    flndate = start_time.strftime("%Y-%m-%d")
+    :params:
+    - a list of strings, each of which is the full path to a directory containing a set of job
+        listing html files.  If multiple paths are provided and contain duplicate jobs (by
+        filename), the version of the html file at the path earlier in the list will be prioritised
+        over the file at the path later in the list.
+    - an open file in write mode to use for logging
+    - a datetime object to use as the start of this script for logging purposes
+
+    :return: nothing, creates or appends to a sqlite3 instance and tarfiles for each year present in
+        the data
+    """
+
+    #flndate = start_time.strftime("%Y-%m-%d")
     logdate = start_time.strftime('%d/%m/%Y %H.%M.%S')
 
     # Set up dict to store dfs of raw data
@@ -37,20 +63,14 @@ def parse_from_raw(datastores, logfile, start_time):
         dfs[datastore] = parsed_df
 
         # Logging
-        logfile.write(f'There were {len(dfs[datastore])} job adverts were parsed into the data file\n')
+        logfile.write(
+            f'There were {len(dfs[datastore])} job adverts were parsed into the data file\n'
+        )
 
         n_invalid = sum((dfs[datastore]['placed_on'] == '') & (dfs[datastore]['job_title'] == ''))
 
         logfile.write(f' - {n_invalid} were missing date and/or title data\n\n')
 
-        parse_csv.export_to_csv(
-            dfs[datastore],
-            settings.RESULTSPATH,
-            '1_processed_jobs_'+datastore.replace('/','_')+'_'+flndate,
-            False,
-        )
-
-        print(f"--- Processed html files in {datastore} to csv ---")
         print(f"--- {datetime.now() - start_time} seconds ---")
         logfile.write('Processing took ' + str(datetime.now() - start_time) + 's\n')
 
@@ -71,17 +91,13 @@ def parse_from_raw(datastores, logfile, start_time):
 
     logfile.write(f'Merged jobs list has a length of {len(df)}\n')
 
-    parse_csv.export_to_csv(df, settings.RESULTSPATH, '1_merged_jobs_'+flndate, False)
-
-    print(f'Merged dataset with {len(df)} jobs saved to "2_merged_jobs_{flndate}.csv"')
-    logfile.write(f'Merged file saved to 2_merged_jobs_{flndate}.csv\n\n')
     logfile.write(f'Processing took {datetime.now() - start_time}')
 
 
     # ===== Add new files to tar =====
 
     # Get the valid years
-    df['year'] = pd.DatetimeIndex(df['placed_on']).year
+    df['year'] = pd.DatetimeIndex(df['placed_on']).year                 # pylint: disable=no-member
     valid_years = df['year'].unique()
 
     for year in valid_years:
@@ -93,7 +109,7 @@ def parse_from_raw(datastores, logfile, start_time):
 
             # Extract current contents of tarfile (if exists)
             try:
-                with tarfile.open(settings.RESULTSPATH+'jobs_'+str(year)+'.tar.gz', 'r|gz') as tar:
+                with tarfile.open(settings.TARPATH+'jobs_'+str(year)+'.tar.gz', 'r|gz') as tar:
                     tar.extractall(tdir)
 
             except FileNotFoundError:
@@ -104,7 +120,7 @@ def parse_from_raw(datastores, logfile, start_time):
                 shutil.copyfile(str(job['source'])+job['filename'], tdir+job['filename'])
 
             # Add the temp directory in its entirety to the new replacement tar
-            with tarfile.open(settings.RESULTSPATH+'jobs_'+str(year)+'.tar.gz', 'w|gz') as tar:
+            with tarfile.open(settings.TARPATH+'jobs_'+str(year)+'.tar.gz', 'w|gz') as tar:
                 tar.add(tdir, recursive=True, arcname='')
 
     # ===== Add new files to database =====

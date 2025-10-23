@@ -70,9 +70,10 @@ ORDER BY salary_min DESC
 
 # What's what
 
-- [pipeline.py] - The complete pipeline, as detailed in this README.
-- [settings.py] - The settings file where you can adjust parameters such as the location of inputs and outputs to the pipeline.
-- [libs/find_jobs.py] - A library of data-cleaning and analysis functions to extract data products from the database
-- [libs/parse_csv.py] - A library of functions to parse the raw job advert html files in order to extract parameters of interest.
-- [libs/raw.py] - A library of functions dealing with converting raw html files into tarfile and database entries.
+- [```pipeline.py```](pipeline.py) - The complete pipeline, as detailed in this README.
+- [```settings.py```](settings.py) - The settings file where you can adjust parameters such as the location of inputs and outputs to the pipeline.
+- [```libs/find_jobs.py```](libs/find_jobs.py) - A library of data-cleaning and analysis functions to extract data products from the database
+- [```libs/parse_csv.py```](libs/parse_csv.py) - A library of functions to parse the raw job advert html files in order to extract parameters of interest.
+- [```libs/raw.py```](libs/raw.py) - A library of functions dealing with converting raw html files into tarfile and database entries.
 - [libs/scrape_jobs.py] - A library of functions dealing with scraping online job information websites to produce locally-stored html files.
+

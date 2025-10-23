@@ -1,5 +1,10 @@
 #!/usr/bin/env python
-# encoding: utf-8
+# -*- coding: utf-8 -*-
+
+"""
+Library of functions to deal with performing cleaning and analysis on parsed jobs data, such as
+that stored in the database.
+"""
 
 from matplotlib import pyplot as plt
 import numpy as np
@@ -7,9 +12,10 @@ import numpy as np
 import pandas as pd
 import settings
 
-from .parse_csv import export_to_csv
+from .parse_jobs import export_to_csv
 
 def clean_job_titles(df):
+    """A function to drop all records with invalid job titles"""
 
     # Clean rows that have missing title data
     df.dropna(subset=['job_title'], inplace=True)
@@ -26,7 +32,7 @@ def date_and_sort(df):
     :return: the same df, but with the date data cleaned and sorted
     """
 
-    df = df[df['placed_on']!='no_data']
+    df.dropna(subset=['placed_on', 'closes_on'], inplace=True)
     df['placed_on'] = pd.to_datetime(df['placed_on'])
     df['closes_on'] = pd.to_datetime(df['closes_on'])
     df.sort_values(by=['placed_on'], inplace=True, ascending=True)
@@ -62,6 +68,7 @@ def find_jobs(df):
 
 
 def enhance(df_original):
+    """Method to enhance a df with auxilliary columns to aid with further analysis"""
 
     # Create copt of original dataset to work on rather than manipulating the original
 
@@ -87,6 +94,7 @@ def enhance(df_original):
 
 
 def summary_of_job_num(df_interest, jobs_per_year_dict):
+    """Create a summary database, listing how many jobs in an input df were placed in each year"""
 
     found_jobs_per_year_dict = df_interest.value_counts(subset='year').to_dict()
 
@@ -113,6 +121,11 @@ def summary_of_job_num(df_interest, jobs_per_year_dict):
 
 
 def plot_job_summary(raw_data,interest_data,summary,resultspath,filedate):
+    """
+    Produce a number of plots tracking how many job ads in two input dfs (envisioned to be
+    the complete dataset from the db and some subset of interest) were placed each year or
+    week.
+    """
 
     export_to_csv(summary, resultspath, 'jobs_by_year_'+filedate, False)
 
@@ -148,12 +161,15 @@ def plot_job_summary(raw_data,interest_data,summary,resultspath,filedate):
 
 
 def get_and_plot_salaries(df,resultspath,filedate,df2=None):
+    """
+    Create a number of plots which trace how the salary offered for one or two sets of
+    jobs of interest has changed over time.
+    """
 
     # Fetch the minimum and maximum years in the dataset
 
-    year_set=set(df['year'])
-    min_year=int(min(year_set))
-    max_year=int(max(year_set))
+    min_year=int(min(df['year']))
+    max_year=int(max(df['year']))
 
     years=range(min_year,max_year+1)
 

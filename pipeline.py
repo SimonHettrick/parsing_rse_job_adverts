@@ -44,7 +44,7 @@ def main(run_time, logfile):
     # Logging
     flndate = run_time.strftime("%Y-%m-%d")
 
-    if '--scrape' in in_args:
+    if (not '--no-scrape' in in_args) and (not '--from-db' in in_args):
         logfile.write('Scraping new jobs:')
         scrape_jobs.scrape()
 
@@ -99,7 +99,7 @@ def main(run_time, logfile):
     df_summ = find_jobs.summary_of_job_num(df_interest, jobs_per_year_dict)
 
     # Make plots and gather stats based on the data summary
-    find_jobs.plot_job_summary(df, df_interest, df_summ,settings.RESULTSPATH, flndate)
+    find_jobs.plot_job_summary(df, df_interest, df_summ, settings.RESULTSPATH, flndate)
     find_jobs.get_and_plot_salaries(df_interest, settings.RESULTSPATH, flndate, df2=df)
 
     print(f"--- {round((time.time() - start_time),1)} seconds ---")
@@ -113,5 +113,5 @@ if __name__ == '__main__':
     now = datetime.now()
 
     fdate = now.strftime("%Y-%m-%d")
-    with open(settings.RESULTSPATH + 'pipeline_log_'+fdate+'.txt', 'w') as lfile:
+    with open('pipeline_log_'+fdate+'.txt', 'w', encoding='utf-8') as lfile:
         main(run_time=now, logfile=lfile)

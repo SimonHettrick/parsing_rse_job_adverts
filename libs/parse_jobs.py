@@ -404,7 +404,7 @@ def read_html(list_of_adverts):
         # a set patern of filename
         if re.match(r'\w\w\w\d\d\d', filename):
 
-            with open(current_ad, "r") as f:
+            with open(current_ad, "r", encoding="utf-8") as f:
                 contents = f.read()
                 advert = BeautifulSoup(contents, 'lxml')
 

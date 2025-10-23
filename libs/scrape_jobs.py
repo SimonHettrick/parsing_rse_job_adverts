@@ -119,7 +119,7 @@ def to_download(input_folder, job_id):
     filename = os.path.join(input_folder, job_id)
     if not os.path.isfile(filename):
         return True
-    with open(filename, 'r') as f:
+    with open(filename, 'r', encoding='utf-8') as f:
         check_content = f.read()
         if check_content is None:
             print(f'{filename}: No data recorded')
@@ -181,7 +181,7 @@ def record_data(input_folder, job_id, data):
     filename = os.path.join(input_folder, job_id)
     str_data = str(data)
     if len(str_data) > 100:
-        with open(filename, "w") as f:
+        with open(filename, 'w', encoding='utf-8') as f:
             f.write(str_data)
     else:
         print(str_data)

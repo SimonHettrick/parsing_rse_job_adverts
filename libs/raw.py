@@ -13,7 +13,7 @@ import sqlite3
 import tarfile
 import tempfile
 
-from libs import parse_csv
+from libs import parse_jobs
 import pandas as pd
 import settings
 
@@ -48,14 +48,14 @@ def parse_from_raw(datastores, logfile, start_time):
     for datastore in datastores:
 
         # Get filenames of all available jobs
-        list_of_adverts = parse_csv.find_files(datastore)
+        list_of_adverts = parse_jobs.find_files(datastore)
 
         logfile.write('Analysed datastore: ' + datastore + '\n \n')
         logfile.write('Date and time: ' + str(logdate) + '\n \n')
         logfile.write(f'There were {len(list_of_adverts)} job adverts reviewed in the sample.\n \n')
 
         # Parse jobs html and read into df
-        parsed_df = parse_csv.read_html(list_of_adverts)
+        parsed_df = parse_jobs.read_html(list_of_adverts)
 
         if parsed_df.empty:
             continue
@@ -167,7 +167,7 @@ def parse_from_raw(datastores, logfile, start_time):
     db_df.to_sql('jobs', conn, if_exists='append', index=False)
     conn.commit()
 
-    with open(settings.DB_LOCATION+'.stats', 'w') as fstats:
+    with open(settings.DB_LOCATION+'.stats', 'w', encoding='utf-8') as fstats:
 
         fstats.write('Field name,Valid Values,Invalid Values\n')
         for column in db_df.columns:

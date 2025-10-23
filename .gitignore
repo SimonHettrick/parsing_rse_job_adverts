@@ -43,3 +43,5 @@ rsejobs.db
 rsejobs.db.stats
 db/
 scraped_jobs/
+data_products/
+pipeline_log*.txt

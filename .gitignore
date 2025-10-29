@@ -45,3 +45,4 @@ db/
 scraped_jobs/
 data_products/
 pipeline_log*.txt
+tarred_jobs/

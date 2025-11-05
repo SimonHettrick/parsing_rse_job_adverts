@@ -37,13 +37,25 @@ def extract_data():
 
         df = pd.read_sql_query("SELECT * FROM jobs", conn)
 
+    # Fix column types
+    df['placed_on'] = pd.to_datetime(df['placed_on'], errors='ignore')
+    df['closes_on'] = pd.to_datetime(df['closes_on'], errors='ignore')
+
     # Annotate the db
     def parse_description(description):
         if description is None:
             return None
-        return re.sub('\<[A-Za-z0-9_/=:"\' @.\?-]*\>|,',' ',description)
+
+        # Remove html tags and words with <=3 characters
+        return re.sub(r'\<[A-Za-z0-9_/=:"\' @.\?\-&;]*\>|,|\W*\b\w{1,3}\b',' ',description)
+
+    def get_year(date):
+        if date is None:
+            return None
+        return date.year
 
     df['description_parsed'] = df['description'].apply(parse_description)
+    df['year'] = df['placed_on'].apply(get_year)
 
     return df
 
@@ -161,22 +173,66 @@ with col_view:
     view = st.selectbox('Data Product:', [
         '--Select--',
         'Description Word Cloud',
-        ])
+        'Organisation Word Cloud',
+        'Jobs per Year',
+        'Jobs per Contract Type',
+    ])
 
 
 # === Plot creation: ===
 
-# ==== Word Cloud ====
+# ==== Description Word Cloud ====
 
 if view == 'Description Word Cloud':
-    if len(db)>5000:
-        st.markdown(f'*Too much data to create word cloud! ({len(db)}/5000)*')
+    wc_limit=50000
+
+    if len(db)>wc_limit:
+        st.markdown(f'*Too much data to create word cloud! ({len(db)}/{wc_limit})*')
 
     else:
         db = db.dropna(subset=['description_parsed'])
 
-        words = db['description_parsed'].str.cat(sep=' ')
-        wc = WordCloud(width=1000, height=800, max_words=150, colormap="Dark2").generate(words)
-        fig = px.imshow(wc)
+        counts = db.description_parsed.str.split().explode().value_counts()
+
+        wc = WordCloud(width=2000, height=800, max_words=150, colormap="Dark2")
+        img = wc.generate_from_frequencies(counts)
+        fig = px.imshow(img)
 
         st.plotly_chart(fig)
+
+# ==== Organisation Cloud ====
+
+elif view == 'Organisation Word Cloud':
+    wc_limit=1000000
+
+    if len(db)>wc_limit:
+        st.markdown(f'*Too much data to create word cloud! ({len(db)}/{wc_limit})*')
+
+    else:
+        db = db.dropna(subset=['organisation'])
+
+        counts = db.organisation.str.split().explode().value_counts()
+
+        wc = WordCloud(width=2000, height=800, max_words=150, colormap="Dark2")
+        img = wc.generate_from_frequencies(counts)
+        fig = px.imshow(img)
+
+        st.plotly_chart(fig)
+
+# ==== Histogram by Year ====
+
+elif view == 'Jobs per Year':
+
+    db = db.dropna(subset=['year'])
+
+    fig = px.histogram(db, x='year')
+    st.plotly_chart(fig)
+
+# ==== Histogram by Contract Type ====
+
+elif view == 'Jobs per Contract Type':
+
+    db = db.dropna(subset=['contract_type'])
+
+    fig = px.histogram(db, x='contract_type')
+    st.plotly_chart(fig)

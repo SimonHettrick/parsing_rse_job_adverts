@@ -2,7 +2,6 @@
 bad_filters = [
     'city',
     'closes_on',
-    'organisation',
     'contract_type',
     'filename',
     'hours',
@@ -15,4 +14,5 @@ bad_filters = [
     'salary_max',
     'location_string',
     'source',
+    'description_parsed',
 ]

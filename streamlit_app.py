@@ -37,6 +37,9 @@ def extract_data():
 
         df = pd.read_sql_query("SELECT * FROM jobs", conn)
 
+    # Drop unnecessary columns
+    df = df.drop(['filename', 'source'], axis=1)
+
     # Fix column types
     df['placed_on'] = pd.to_datetime(df['placed_on'], errors='ignore')
     df['closes_on'] = pd.to_datetime(df['closes_on'], errors='ignore')
@@ -172,67 +175,45 @@ if n_filters > 0:
 with col_view:
     view = st.selectbox('Data Product:', [
         '--Select--',
-        'Description Word Cloud',
-        'Organisation Word Cloud',
+        'General Stats',
         'Jobs per Year',
         'Jobs per Contract Type',
+        'Title Word Cloud',
+        'Description Word Cloud',
+        'Organisation Word Cloud',
     ])
+
+    components.download_button(db)
 
 
 # === Plot creation: ===
 
+# ==== Stats Page ====
+
+if view == 'General Stats':
+    components.general_stats(db)
+
 # ==== Description Word Cloud ====
 
-if view == 'Description Word Cloud':
-    wc_limit=50000
+elif view == 'Title Word Cloud':
+    components.word_cloud(db, 'job_title')
 
-    if len(db)>wc_limit:
-        st.markdown(f'*Too much data to create word cloud! ({len(db)}/{wc_limit})*')
+# ==== Description Word Cloud ====
 
-    else:
-        db = db.dropna(subset=['description_parsed'])
-
-        counts = db.description_parsed.str.split().explode().value_counts()
-
-        wc = WordCloud(width=2000, height=800, max_words=150, colormap="Dark2")
-        img = wc.generate_from_frequencies(counts)
-        fig = px.imshow(img)
-
-        st.plotly_chart(fig)
+elif view == 'Description Word Cloud':
+    components.word_cloud(db, 'description_parsed', wc_limit=50000)
 
 # ==== Organisation Cloud ====
 
 elif view == 'Organisation Word Cloud':
-    wc_limit=1000000
-
-    if len(db)>wc_limit:
-        st.markdown(f'*Too much data to create word cloud! ({len(db)}/{wc_limit})*')
-
-    else:
-        db = db.dropna(subset=['organisation'])
-
-        counts = db.organisation.str.split().explode().value_counts()
-
-        wc = WordCloud(width=2000, height=800, max_words=150, colormap="Dark2")
-        img = wc.generate_from_frequencies(counts)
-        fig = px.imshow(img)
-
-        st.plotly_chart(fig)
+    components.word_cloud(db, 'organisation')
 
 # ==== Histogram by Year ====
 
 elif view == 'Jobs per Year':
-
-    db = db.dropna(subset=['year'])
-
-    fig = px.histogram(db, x='year')
-    st.plotly_chart(fig)
+    components.histogram(db, 'year')
 
 # ==== Histogram by Contract Type ====
 
 elif view == 'Jobs per Contract Type':
-
-    db = db.dropna(subset=['contract_type'])
-
-    fig = px.histogram(db, x='contract_type')
-    st.plotly_chart(fig)
+    components.histogram(db, 'contract_type')

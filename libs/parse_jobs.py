@@ -66,24 +66,31 @@ def find_description(advert):
     :return: a job description
     """
     try:
-        dlist = advert.find('div', id='job-description').contents
+        dobj = advert.find('div', id='job-description')
+        dlist = dobj.contents
         description = ''.join(map(str, dlist))
+        description_parsed = dobj.text
 
     except AttributeError:
         locscript = advert.find('script', type="application/ld+json")
         if not locscript:
-            return None
+            return None, None, None
         parsed_script = json.loads(locscript.string)
         try:
             description = parsed_script['description']
-        except KeyError:
-            return None
+            description_parsed = re.sub('<[^>]*>',' ',description)
 
+        except KeyError:
+            return None, None, None
+
+    description_word_count = len(description_parsed.split(' '))
 
     description = re.sub(clean_lb, '', description)
     description = description.lower()
+    description_parsed = re.sub(clean_lb, '', description_parsed)
+    description_parsed = description_parsed.lower()
 
-    return description
+    return description, description_parsed, description_word_count
 
 
 def find_role(advert):
@@ -429,7 +436,7 @@ def read_html(list_of_adverts):
 
                 #Extract info I want
                 title = find_title(advert)
-                description = find_description(advert)
+                description, description_parsed, description_word_count = find_description(advert)
                 contract_type = find_generic(advert, ['Contract Type:'])
                 placed_on = find_date(advert, ['Placed On:'])
                 closes_on = find_date(advert, ['Closes:', 'Expires:'])
@@ -444,6 +451,8 @@ def read_html(list_of_adverts):
                 # Add the info to the data list
                 data.append(title)
                 data.append(description)
+                data.append(description_parsed)
+                data.append(description_word_count)
                 data.append(contract_type)
                 data.append(placed_on)
                 data.append(closes_on)
@@ -471,6 +480,8 @@ def read_html(list_of_adverts):
             'filename',
             'job_title',
             'description',
+            'description_parsed',
+            'description_word_count',
             'contract_type',
             'placed_on',
             'closes_on',

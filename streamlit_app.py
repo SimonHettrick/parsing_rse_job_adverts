@@ -45,19 +45,11 @@ def extract_data():
     df['closes_on'] = pd.to_datetime(df['closes_on'], errors='ignore')
 
     # Annotate the db
-    def parse_description(description):
-        if description is None:
-            return None
-
-        # Remove html tags and words with <=3 characters
-        return re.sub(r'\<[A-Za-z0-9_/=:"\' @.\?\-&;]*\>|,|\W*\b\w{1,3}\b',' ',description)
-
     def get_year(date):
         if date is None:
             return None
         return date.year
 
-    df['description_parsed'] = df['description'].apply(parse_description)
     df['year'] = df['placed_on'].apply(get_year)
 
     return df

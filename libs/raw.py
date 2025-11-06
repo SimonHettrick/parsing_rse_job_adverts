@@ -97,7 +97,7 @@ def parse_from_raw(datastores, logfile, start_time):
     # ===== Add new files to tar =====
 
     # Get the valid years
-    df['year'] = pd.DatetimeIndex(df['placed_on']).year                 # pylint: disable=no-member
+    df['year'] = pd.DatetimeIndex(df['placed_on']).year        # pylint: disable=no-member
     valid_years = df['year'].unique()
 
     for year in valid_years:
@@ -134,6 +134,8 @@ def parse_from_raw(datastores, logfile, start_time):
             filename TEXT NOT NULL, 
             job_title TEXT,
             description TEXT,
+            description_parsed TEXT,
+            description_word_count INTEGER,
             contract_type TEXT, 
             placed_on DATE,
             closes_on DATE,
@@ -161,9 +163,10 @@ def parse_from_raw(datastores, logfile, start_time):
 
     db_df = df.loc[~df['filename'].isin(prev_records)]
     db_df = db_df.replace('', None)
-    # Reformat the raw df to be compatible with the db
 
+    # Reformat db to be compatible with sql
     db_df.drop(['year'], axis=1, inplace=True)
+
     db_df.to_sql('jobs', conn, if_exists='append', index=False)
     conn.commit()
 

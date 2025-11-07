@@ -58,20 +58,20 @@ db = extract_data()
 
 # === Set up page layout ===
 
-help_col_1, help_col_2 = st.columns(2, gap='medium')
+#help_col_1, help_col_2 = st.columns(2, gap='medium')
 filter_area = st.container()
 
 # === Set up toggleable help text ===
 
-with help_col_1:
-    show_help = st.toggle('Show Help Text')
+#with help_col_1:
+#    show_help = st.toggle('Show Help Text')
 
-if show_help:
-    with help_col_1:
-        st.markdown('*Help text 1*')
-    with help_col_2:
-        st.markdown('*Help text 2*')
-    st.divider()
+#if show_help:
+#    with help_col_1:
+#        st.markdown('*Help text 1*')
+#    with help_col_2:
+#        st.markdown('*Help text 2*')
+#    st.divider()
 
 # === Prepare input area ===
 
@@ -102,22 +102,28 @@ if n_filters > 0:
 
         # Collect the list of filterable fields by removing bad filter fields based on dtype
 
-        filterable_fields = [str(c) for c in db.columns]
-        filterable_fields = list(filter(
+        filt_fields = [str(c) for c in db.columns]
+        filt_fields = list(filter(
             lambda c : c not in translators.bad_filters,
-            filterable_fields
+            filt_fields
         ))
+        filt_fields = [translators.id_to_human[c] for c in filt_fields]
 
-        filterable_fields.sort()
+
+        filt_fields.sort()
 
         with subcol_filterfield:
 
             # Collect user's selection of filter field
-            filter_field = st.selectbox('Filter Field:', ['--None--']+filterable_fields,
-                label_visibility=l_vis, key=('f', f_key))
+            filter_field = translators.human_to_id[st.selectbox(
+                'Filter Field:',
+                ['--None--']+filt_fields,
+                label_visibility=l_vis,
+                key=('f', f_key)
                 # ^ generate unique keys for this and all widgets, required by streamlit backend
+            )]
 
-        if filter_field == '--None--':
+        if filter_field is None:
 
             # If no field selected, display non-interactable placeholder dropdowns
             subcol_filtertype.selectbox(

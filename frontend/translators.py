@@ -3,6 +3,7 @@ bad_filters = [
     'city',
     'closes_on',
     'contract_type',
+    'description_word_count',
     'filename',
     'hours',
     'id',
@@ -15,4 +16,16 @@ bad_filters = [
     'location_string',
     'source',
     'description_parsed',
+    'year',
 ]
+
+# Dicts to translate from human-readable column names to backend column ids (and vice versa)
+human_to_id = {
+    '--None--':None,
+    'Country':'country',
+    'Description':'description',
+    'Job Title':'job_title',
+    'Organisation':'organisation',
+}
+
+id_to_human = {v : k for k, v in human_to_id.items()}

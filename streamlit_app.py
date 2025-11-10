@@ -3,7 +3,6 @@ import numpy as np
 import pandas as pd
 import re
 import sqlite3
-from wordcloud import WordCloud
 import plotly.express as px
 
 import settings
@@ -20,9 +19,6 @@ st.elements.lib.pandas_styler_utils._use_display_values = lambda df, style: df.a
 
 # Title text
 image_column, header_column = st.columns([1, 20], gap='small')
-
-with image_column:
-    st.image('frontend/media/soton.svg', width=80)
 
 with header_column:
     st.header('RSE Job Tracker')
@@ -41,14 +37,16 @@ def extract_data():
     df = df.drop(['filename', 'source'], axis=1)
 
     # Fix column types
-    df['placed_on'] = pd.to_datetime(df['placed_on'], errors='ignore')
-    df['closes_on'] = pd.to_datetime(df['closes_on'], errors='ignore')
+    df['placed_on'] = pd.to_datetime(df['placed_on'], format='mixed', errors='ignore')
+    df['closes_on'] = pd.to_datetime(df['closes_on'], format='mixed', errors='ignore')
 
     # Annotate the db
     def get_year(date):
-        if date is None:
+        try:
+            return date.year
+        except:
+            print(date)
             return None
-        return date.year
 
     df['year'] = df['placed_on'].apply(get_year)
 
@@ -204,7 +202,7 @@ elif view == 'Description Word Cloud':
 # ==== Organisation Cloud ====
 
 elif view == 'Organisation Word Cloud':
-    components.word_cloud(db, 'organisation')
+    components.word_cloud(db, 'organisation', stopwords=set(['university','of','the']))
 
 # ==== Histogram by Year ====
 

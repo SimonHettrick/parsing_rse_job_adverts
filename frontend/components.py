@@ -1,4 +1,4 @@
-from wordcloud import WordCloud
+from wordcloud import WordCloud, STOPWORDS
 import plotly.express as px
 import streamlit as st
 
@@ -26,7 +26,10 @@ def download_button(df, title='data'):
 def general_stats(df):
     pass
 
-def word_cloud(df, field, wc_limit=100000):
+def word_cloud(df, field, wc_limit=100000, stopwords=None):
+
+    if stopwords is None:
+        stopwords=STOPWORDS
 
     if len(df)>wc_limit:
         st.markdown(f'*Too much data to create word cloud! ({len(df)}/{wc_limit})*')
@@ -35,6 +38,8 @@ def word_cloud(df, field, wc_limit=100000):
         df = df.dropna(subset=[field])
 
         counts = getattr(df,field).str.split().explode().value_counts()
+        print(stopwords)
+        counts=counts.drop(labels=stopwords, errors='ignore')
 
         wc = WordCloud(width=2000, height=800, max_words=150, colormap="Dark2")
         img = wc.generate_from_frequencies(counts)

@@ -15,8 +15,10 @@ from bs4 import BeautifulSoup
 import numpy as np
 import pandas as pd
 
-# Setting up annoying text remover
+# Setting up annoying text removers
 clean_lb = re.compile('\n')
+parse_lb = re.compile(r'[\n()\&\',]')
+parse_to_space = re.compile(r'[@\-:;./]')
 
 def find_files(location):
     """
@@ -86,8 +88,9 @@ def find_description(advert):
     description_word_count = len(description_parsed.split(' '))
 
     description = re.sub(clean_lb, '', description)
-    description = description.lower()
-    description_parsed = re.sub(clean_lb, '', description_parsed)
+    description_parsed = re.sub(parse_lb, '', description_parsed)
+    description_parsed = re.sub(parse_to_space, ' ', description_parsed)
+    description_parsed = re.sub(re.compile(r"\s+"), ' ', description_parsed).strip()
     description_parsed = description_parsed.lower()
 
     return description, description_parsed, description_word_count
@@ -99,14 +102,15 @@ def find_role(advert):
     :param advert: the beautiful soup parsed version of an advert
     :return: the role from the advert
     """
+    reg_string = re.compile('Type / Role:', re.IGNORECASE)
     try:
-        role = advert.find('p', string='Type / Role:').find_next_sibling('p').text
+        role = advert.find('p', string=reg_string).find_next_sibling('p').text
         role = re.sub(clean_lb, '', role)
     except AttributeError:
         role = None
 
     try:
-        try_role = advert.find('p', string='Type / Role:').find_next('a').text
+        try_role = advert.find('p', string=reg_string).find_next('a').text
         # Only replace the role if the previous role is zero (i.e. don't overwrite
         # a valid date from the last 'try'
         if role in (None, '', 'Ok') and try_role not in (None, '', 'Ok'):
@@ -116,7 +120,7 @@ def find_role(advert):
 
     try:
         try_role = \
-        advert.find('b', string='Type / Role:').find_next(
+        advert.find('b', string=reg_string).find_next(
             'div', {'class': 'j-form-input ie-11-width'}).find_next('input').attrs['value']
         # Only replace the role if the previous role is zero (i.e. don't overwrite
         # a valid date from the last 'try'
@@ -127,7 +131,7 @@ def find_role(advert):
 
     try:
         try_role = \
-        advert.find('p', string='Type / Role:').find_next(
+        advert.find('p', string=reg_string).find_next(
             'div', {'class': 'j-form-input ie-11-width'}).find_next('input').attrs['value']
         # Only replace the role if the previous role is zero (i.e. don't overwrite
         # a valid date from the last 'try'
@@ -168,9 +172,10 @@ def find_generic(advert, search_strings):
     :return: the location from the advert
     """
     for search_string in search_strings:
+        reg_string = re.compile(search_string, re.IGNORECASE)
         for ctype in ('td', 'th'):
             try:
-                value = advert.find(ctype, string=search_string).find_next_sibling('td').text
+                value = advert.find(ctype, string=reg_string).find_next_sibling('td').text
                 if value not in ('', None):
                     break
             except AttributeError:
@@ -197,8 +202,9 @@ def find_date(advert, search_strings):
     """
 
     for search_string in search_strings:
+        reg_string = re.compile(search_string, re.IGNORECASE)
         try:
-            date = advert.find('td', string=search_string).find_next_sibling('td').text
+            date = advert.find('td', string=reg_string).find_next_sibling('td').text
             date = date.replace('th','').replace('1st','1')
             date = date.replace('2nd','2').replace('3rd','3')
             return date
@@ -208,7 +214,7 @@ def find_date(advert, search_strings):
         # Only replace the date if the previous date is '' (i.e. don't overwrite
         # a valid date from the last 'try'
         try:
-            date = advert.find('th', string=search_string).find_next_sibling('td').text
+            date = advert.find('th', string=reg_string).find_next_sibling('td').text
             date = date.replace('th','').replace('1st','1')
             date = date.replace('2nd','2').replace('3rd','3')
             return date

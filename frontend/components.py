@@ -1,26 +1,23 @@
+'''Definitions for components (e.g. plots, tables) for the frontend streamlit app'''
+
 from wordcloud import WordCloud, STOPWORDS
 import pandas as pd
 import plotly.express as px
 import streamlit as st
 
-STOPWORDS.update([
-    'will',
-    'must',
-    'us',
-    'well',
-    'http',
-    'https',
-    'embl',
-    'please',
-    'may',
-])
+import settings
+
+STOPWORDS.update(settings.ADDITIONAL_STOPWORDS)
 
 def download_button(df, title='data'):
+    '''A button which prepares and then downloads a modified version of the dataset, applyinh
+    currently selected filters and removing sensitive information'''
 
     # Ignore description column and aux columns
     df = df.drop([
         'description',
         'description_parsed',
+        'job_title_parsed',
         'year',
         'id',
         'location_string',
@@ -37,6 +34,7 @@ def download_button(df, title='data'):
         st.write('Thanks for downloading!')
 
 def general_stats(df):
+    '''A table to display various stats on the currently selected dataset'''
 
     stats_matrix = pd.DataFrame(
         {
@@ -66,6 +64,7 @@ def general_stats(df):
     st.table(stats_matrix)
 
 def word_cloud(df, field, wc_limit=5000000, stopwords=None):
+    '''Create a wordcloud of the most used words in a given field'''
 
     if stopwords is None:
         stopwords=STOPWORDS
@@ -86,10 +85,13 @@ def word_cloud(df, field, wc_limit=5000000, stopwords=None):
         st.plotly_chart(fig)
 
 def histogram(df, field, groupother=False):
+    '''Create a histogram of value frequencies of a given frame in the df, grouping
+    rare values into an 'other' column if requested'''
+
     df = df.dropna(subset=[field])
     counts = df[field].value_counts().sort_index()
     if groupother:
-        cutoff=0.05
+        cutoff=settings.HISTOGRAM_CUTOFF
         misc_counts = counts[counts<(counts.sum()*cutoff)]
         print(misc_counts.sum())
         counts = counts.drop(labels=misc_counts.keys(), errors='ignore')

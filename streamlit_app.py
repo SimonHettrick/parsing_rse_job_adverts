@@ -1,9 +1,11 @@
-import streamlit as st
+'''Streamlit app to provide a user-friendly frontend to access the dataset and create basic
+data products'''
+
+import sqlite3
+
 import numpy as np
 import pandas as pd
-import re
-import sqlite3
-import plotly.express as px
+import streamlit as st
 
 import settings
 from frontend import components, translators
@@ -29,6 +31,8 @@ st.divider()
 
 @st.cache_resource
 def extract_data():
+    '''Extract the dataset from the db, perform some light processing and cache the result'''
+
     with sqlite3.connect(settings.DB_LOCATION) as conn:
 
         df = pd.read_sql_query("SELECT * FROM jobs", conn)
@@ -44,8 +48,7 @@ def extract_data():
     def get_year(date):
         try:
             return date.year
-        except:
-            print(date)
+        except AttributeError:
             return None
 
     df['year'] = df['placed_on'].apply(get_year)
@@ -59,29 +62,17 @@ db = extract_data()
 #help_col_1, help_col_2 = st.columns(2, gap='medium')
 filter_area = st.container()
 
-# === Set up toggleable help text ===
-
-#with help_col_1:
-#    show_help = st.toggle('Show Help Text')
-
-#if show_help:
-#    with help_col_1:
-#        st.markdown('*Help text 1*')
-#    with help_col_2:
-#        st.markdown('*Help text 2*')
-#    st.divider()
-
 # === Prepare input area ===
 
 # Set up column containers for user input dropdowns
 col_data, col_view = st.columns(2)
 
 # Setting the maximum number of filters the user can request
-max_filters = 5
+MAX_FILTERS = 5
 
 # Collect how many filters the user wants to apply
 with col_data:
-    n_filters = st.selectbox('Number of Filters', range(max_filters+1))
+    n_filters = st.selectbox('Number of Filters', range(MAX_FILTERS+1))
 
 # Skip the filter section entirely if 0 filters are requested
 if n_filters > 0:
@@ -184,9 +175,12 @@ with col_view:
 
 # === Plot creation: ===
 
+if db.empty:
+    pass
+
 # ==== Stats Page ====
 
-if view == 'General Stats':
+elif view == 'General Stats':
     components.general_stats(db)
 
 # ==== Description Word Cloud ====

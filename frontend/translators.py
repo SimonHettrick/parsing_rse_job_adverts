@@ -1,3 +1,7 @@
+'''Functions and dictionaries to convert backend identifiers to human-readable labels,
+and to define whitelists/blacklists of parameters to be included/ignored in various
+settings.'''
+
 # A list of columns which should not be used for filters in the app
 bad_filters = [
     'city',

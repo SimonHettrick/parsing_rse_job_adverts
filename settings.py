@@ -34,24 +34,24 @@ TARPATH = './tarred_jobs/'
 # The full path of the database file where the parsed job data is to be stored
 DB_LOCATION = './db/jobs.sqlite'
 
-# The folder to store various auxilliary results and plots from the analysis portion of the
-# pipeline
-RESULTSPATH = './data_products/'
 
+# === Frontend settings ===
 
-# === Analysis settings ===
-
-# A list of substrings considered to be indicators of RSE jobs
-jobs_of_interest = [
-    'data scien',
-    'data engineer',
-    'data steward',
-    'software develop',
-    'software engineer',
-    'research engineer',
-    'bioinformatic',
-    'knowledge exchange',
+# A list of words to ignore when generating ANY WordClouds.  Stopwords defined in
+# `wordloud.STOPWORDS` will also be ignored.
+ADDITIONAL_STOPWORDS = [
+    'will',
+    'must',
+    'us',
+    'well',
+    'http',
+    'https',
+    'embl',
+    'please',
+    'may',
 ]
 
-# A list of substrings considered to be indicators of non-RSE jobs
-avoid_jobs = [ 'fellow', 'lecturer', 'student', 'tutor', 'profess']
+# A threshold (defined as a ratio of total counts) below which a category should not be plotted
+# when creating a histogram, instead collecting all of these results into a single 'other'
+# category.
+HISTOGRAM_CUTOFF = 0.05

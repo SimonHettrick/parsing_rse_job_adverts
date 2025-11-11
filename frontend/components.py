@@ -81,7 +81,8 @@ def word_cloud(df, field, wc_limit=5000000, stopwords=None):
         wc = WordCloud(width=2000, height=800, max_words=150, colormap="Dark2")
         img = wc.generate_from_frequencies(counts)
         fig = px.imshow(img)
-
+        fig.update_traces(hovertemplate=None, hoverinfo='skip')
+        fig.update_layout(xaxis_visible=False, yaxis_visible=False)
         st.plotly_chart(fig)
 
 def histogram(df, field, groupother=False):
@@ -93,7 +94,6 @@ def histogram(df, field, groupother=False):
     if groupother:
         cutoff=settings.HISTOGRAM_CUTOFF
         misc_counts = counts[counts<(counts.sum()*cutoff)]
-        print(misc_counts.sum())
         counts = counts.drop(labels=misc_counts.keys(), errors='ignore')
         counts['other'] = misc_counts.sum()
 
@@ -101,4 +101,5 @@ def histogram(df, field, groupother=False):
 
     else:
         fig = px.histogram(df, x=field)
+
     st.plotly_chart(fig)

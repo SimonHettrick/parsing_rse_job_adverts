@@ -176,7 +176,7 @@ with col_view:
 # === Plot creation: ===
 
 if db.empty:
-    pass
+    st.markdown('*No data to plot!*')
 
 # ==== Stats Page ====
 

@@ -1,6 +1,7 @@
 # A list of columns which should not be used for filters in the app
 bad_filters = [
     'city',
+    'job_title_parsed',
     'closes_on',
     'contract_type',
     'description_word_count',

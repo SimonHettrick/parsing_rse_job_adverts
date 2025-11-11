@@ -14,6 +14,7 @@ import tarfile
 import tempfile
 
 from libs import parse_jobs
+import numpy as np
 import pandas as pd
 import settings
 
@@ -99,6 +100,8 @@ def parse_from_raw(datastores, logfile, start_time):
     # Get the valid years
     df['year'] = pd.DatetimeIndex(df['placed_on']).year        # pylint: disable=no-member
     valid_years = df['year'].unique()
+    print(valid_years)
+    valid_years = valid_years[~np.isnan(valid_years)]
 
     for year in valid_years:
         y_df = df.loc[df['year'] == year]
@@ -123,6 +126,29 @@ def parse_from_raw(datastores, logfile, start_time):
             with tarfile.open(settings.TARPATH+'jobs_'+str(year)+'.tar.gz', 'w|gz') as tar:
                 tar.add(tdir, recursive=True, arcname='')
 
+    with tempfile.TemporaryDirectory() as td:
+
+        y_df = df[df['year'].isna()]
+
+        tdir = str(pathlib.Path(td))+'/'
+
+        # Extract current contents of tarfile (if exists)
+        try:
+            with tarfile.open(settings.TARPATH+'jobs_nullyear.tar.gz', 'r|gz') as tar:
+                tar.extractall(tdir)
+
+        except FileNotFoundError:
+            print('No existing tar found')
+
+        # Copy all new files to the temp directory
+        for _, job in y_df.iterrows():
+            shutil.copyfile(str(job['source'])+job['filename'], tdir+job['filename'])
+
+        # Add the temp directory in its entirety to the new replacement tar
+        with tarfile.open(settings.TARPATH+'jobs_nullyear.tar.gz', 'w|gz') as tar:
+            tar.add(tdir, recursive=True, arcname='')
+
+
     # ===== Add new files to database =====
 
     conn = sqlite3.connect(settings.DB_LOCATION)
@@ -133,6 +159,7 @@ def parse_from_raw(datastores, logfile, start_time):
             id INTEGER PRIMARY KEY,
             filename TEXT NOT NULL, 
             job_title TEXT,
+            job_title_parsed TEXT,
             description TEXT,
             description_parsed TEXT,
             description_word_count INTEGER,

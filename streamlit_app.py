@@ -192,12 +192,12 @@ if view == 'General Stats':
 # ==== Description Word Cloud ====
 
 elif view == 'Title Word Cloud':
-    components.word_cloud(db, 'job_title')
+    components.word_cloud(db, 'job_title_parsed')
 
 # ==== Description Word Cloud ====
 
 elif view == 'Description Word Cloud':
-    components.word_cloud(db, 'description_parsed', wc_limit=50000)
+    components.word_cloud(db, 'description_parsed', wc_limit=100000)
 
 # ==== Organisation Cloud ====
 
@@ -212,4 +212,4 @@ elif view == 'Jobs per Year':
 # ==== Histogram by Contract Type ====
 
 elif view == 'Jobs per Contract Type':
-    components.histogram(db, 'contract_type')
+    components.histogram(db, 'contract_type', groupother=True)

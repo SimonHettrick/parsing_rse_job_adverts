@@ -54,11 +54,17 @@ def find_title(advert):
     except AttributeError:
         title = None
 
-    if title is not None:
-        title = re.sub(clean_lb, '', title)
-        title = title.lower()
+    if title is None:
+        return None, None
 
-    return title
+    title = re.sub(clean_lb, '', title)
+    title = title.lower()
+
+    title_parsed = re.sub(parse_lb, '', title)
+    title_parsed = re.sub(parse_to_space, ' ', title_parsed)
+    title_parsed = re.sub(re.compile(r"\s+"), ' ', title_parsed).strip()
+
+    return title, title_parsed
 
 
 def find_description(advert):
@@ -441,7 +447,7 @@ def read_html(list_of_adverts):
                 advert = BeautifulSoup(contents, 'lxml')
 
                 #Extract info I want
-                title = find_title(advert)
+                title, title_parsed = find_title(advert)
                 description, description_parsed, description_word_count = find_description(advert)
                 contract_type = find_generic(advert, ['Contract Type:'])
                 placed_on = find_date(advert, ['Placed On:'])
@@ -456,6 +462,7 @@ def read_html(list_of_adverts):
 
                 # Add the info to the data list
                 data.append(title)
+                data.append(title_parsed)
                 data.append(description)
                 data.append(description_parsed)
                 data.append(description_word_count)
@@ -485,6 +492,7 @@ def read_html(list_of_adverts):
         df.columns = [
             'filename',
             'job_title',
+            'job_title_parsed',
             'description',
             'description_parsed',
             'description_word_count',

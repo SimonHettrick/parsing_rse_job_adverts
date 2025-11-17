@@ -15,6 +15,9 @@ from bs4 import BeautifulSoup
 import numpy as np
 import pandas as pd
 
+import settings
+from libs import api
+
 # Setting up annoying text removers
 clean_lb = re.compile('\n')
 parse_lb = re.compile(r'[\n()\&\',]')
@@ -416,6 +419,24 @@ def find_salary(advert):
 
     return None, None
 
+def find_location_string(advert):
+    """
+    Find and clean the location info from the job advert
+    :param advert: the beatiful soup parsed version of an advert
+    :return: a location string
+    """
+    location_string = find_generic(advert, ['Location:'])
+    if location_string is None:
+        return None
+    split_str = location_string.strip().split(', ')
+    locations = [l for l in split_str if l not in settings.IGNORE_LOCATIONS]
+    if len(locations) == 0:
+        return None
+    loc = locations[0].strip()
+    if loc == 'various':
+        return None
+    return loc
+
 
 def read_html(list_of_adverts):
     """
@@ -457,7 +478,7 @@ def read_html(list_of_adverts):
                 hours = find_generic(advert, ['Hours:'])
                 job_ref = find_generic(advert, ['Job Ref:', 'Reference:'])
                 organisation = find_organisation(advert)
-                location_string = find_generic(advert, ['Location:'])
+                location_string = find_location_string(advert)
                 city, region, country = find_loc_data(advert)
 
                 # Add the info to the data list
@@ -510,6 +531,7 @@ def read_html(list_of_adverts):
             'region',
             'country',
         ]
+        df = api.enhance_location_data(df)
     except ValueError:
         print('--- folder is empty, skipping ---')
 

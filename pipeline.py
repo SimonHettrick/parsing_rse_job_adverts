@@ -45,6 +45,7 @@ def main(run_time, logfile):
         datastores=datastores,
         logfile=logfile,
         start_time=run_time,
+        no_tar='--no-tar' in in_args,
     )
 
     logfile.close()

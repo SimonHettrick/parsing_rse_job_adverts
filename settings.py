@@ -19,6 +19,22 @@ BASE_URL = "http://www.jobs.ac.uk"
 # The full URL used to access the current list of job listings
 FULL_URL = f"{BASE_URL}/search/?keywords=*&sort=re&s=1&pageSize={NUM_JOBS}"
 
+IGNORE_LOCATIONS = (
+    'hybrid',
+    'remote',
+    'remote/on-site',
+    'work from home',
+    'hybrid/on-site',
+    'hybrid/remote',
+    'field based',
+    'home based',
+    'home-based',
+    'home',
+    'homebase',
+    'home-based / online',
+    'online',
+)
+
 
 # === Local storage settings ===
 

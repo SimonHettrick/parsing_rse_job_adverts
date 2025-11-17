@@ -18,8 +18,58 @@ import numpy as np
 import pandas as pd
 import settings
 
+def tar_job_ads(df):
+    valid_years = df['year'].unique()
+    valid_years = valid_years[~np.isnan(valid_years)]
 
-def parse_from_raw(datastores, logfile, start_time):
+    for year in valid_years:
+        y_df = df.loc[df['year'] == year]
+
+        with tempfile.TemporaryDirectory() as td:
+
+            tdir = str(pathlib.Path(td))+'/'
+
+            # Extract current contents of tarfile (if exists)
+            try:
+                with tarfile.open(settings.TARPATH+'jobs_'+str(year)+'.tar.gz', 'r|gz') as tar:
+                    tar.extractall(tdir)
+
+            except FileNotFoundError:
+                print('No existing tar found')
+
+            # Copy all new files to the temp directory
+            for _, job in y_df.iterrows():
+                shutil.copyfile(str(job['source'])+job['filename'], tdir+job['filename'])
+
+            # Add the temp directory in its entirety to the new replacement tar
+            with tarfile.open(settings.TARPATH+'jobs_'+str(year)+'.tar.gz', 'w|gz') as tar:
+                tar.add(tdir, recursive=True, arcname='')
+
+
+    with tempfile.TemporaryDirectory() as td:
+
+        y_df = df[df['year'].isna()]
+
+        tdir = str(pathlib.Path(td))+'/'
+
+        # Extract current contents of tarfile (if exists)
+        try:
+            with tarfile.open(settings.TARPATH+'jobs_nullyear.tar.gz', 'r|gz') as tar:
+                tar.extractall(tdir)
+
+        except FileNotFoundError:
+            print('No existing tar found')
+
+        # Copy all new files to the temp directory
+        for _, job in y_df.iterrows():
+            shutil.copyfile(str(job['source'])+job['filename'], tdir+job['filename'])
+
+        # Add the temp directory in its entirety to the new replacement tar
+        with tarfile.open(settings.TARPATH+'jobs_nullyear.tar.gz', 'w|gz') as tar:
+            tar.add(tdir, recursive=True, arcname='')
+
+
+def parse_from_raw(datastores, logfile, start_time, no_tar=False):
     """
     Extracts all job listing html files from a number of given directories, sorts them by year and
     appends them to (or creates) tarfiles to reduce storage space, parses the html for each job to
@@ -99,55 +149,9 @@ def parse_from_raw(datastores, logfile, start_time):
 
     # Get the valid years
     df['year'] = pd.DatetimeIndex(df['placed_on']).year        # pylint: disable=no-member
-    valid_years = df['year'].unique()
-    print(valid_years)
-    valid_years = valid_years[~np.isnan(valid_years)]
 
-    for year in valid_years:
-        y_df = df.loc[df['year'] == year]
-
-        with tempfile.TemporaryDirectory() as td:
-
-            tdir = str(pathlib.Path(td))+'/'
-
-            # Extract current contents of tarfile (if exists)
-            try:
-                with tarfile.open(settings.TARPATH+'jobs_'+str(year)+'.tar.gz', 'r|gz') as tar:
-                    tar.extractall(tdir)
-
-            except FileNotFoundError:
-                print('No existing tar found')
-
-            # Copy all new files to the temp directory
-            for _, job in y_df.iterrows():
-                shutil.copyfile(str(job['source'])+job['filename'], tdir+job['filename'])
-
-            # Add the temp directory in its entirety to the new replacement tar
-            with tarfile.open(settings.TARPATH+'jobs_'+str(year)+'.tar.gz', 'w|gz') as tar:
-                tar.add(tdir, recursive=True, arcname='')
-
-    with tempfile.TemporaryDirectory() as td:
-
-        y_df = df[df['year'].isna()]
-
-        tdir = str(pathlib.Path(td))+'/'
-
-        # Extract current contents of tarfile (if exists)
-        try:
-            with tarfile.open(settings.TARPATH+'jobs_nullyear.tar.gz', 'r|gz') as tar:
-                tar.extractall(tdir)
-
-        except FileNotFoundError:
-            print('No existing tar found')
-
-        # Copy all new files to the temp directory
-        for _, job in y_df.iterrows():
-            shutil.copyfile(str(job['source'])+job['filename'], tdir+job['filename'])
-
-        # Add the temp directory in its entirety to the new replacement tar
-        with tarfile.open(settings.TARPATH+'jobs_nullyear.tar.gz', 'w|gz') as tar:
-            tar.add(tdir, recursive=True, arcname='')
-
+    if not no_tar:
+        tar_job_ads(df)
 
     # ===== Add new files to database =====
 
@@ -176,6 +180,8 @@ def parse_from_raw(datastores, logfile, start_time):
             city TEXT,
             region TEXT,
             country TEXT,
+            latitude FLOAT,
+            longitude FLOAT,
             source TEXT
         );
     """)
@@ -187,6 +193,16 @@ def parse_from_raw(datastores, logfile, start_time):
         prev_records = prev_files[0].tolist()
     except KeyError:
         prev_records = []
+
+    ####### DEBUG #######
+
+    with open('loc_strings.txt','w') as f:
+        u = df['location_string'].unique()
+        for i in u:
+            if i is not None:
+                f.write(i+'\n')
+
+    #######       #######
 
     db_df = df.loc[~df['filename'].isin(prev_records)]
     db_df = db_df.replace('', None)

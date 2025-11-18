@@ -19,6 +19,8 @@ import pandas as pd
 import settings
 
 def tar_job_ads(df):
+    '''Sort job ads by year and add to existing tar files / create new tar files if none exist'''
+
     valid_years = df['year'].unique()
     valid_years = valid_years[~np.isnan(valid_years)]
 
@@ -69,8 +71,8 @@ def tar_job_ads(df):
             tar.add(tdir, recursive=True, arcname='')
 
 
-def parse_from_raw(datastores, logfile, start_time, no_tar=False):
-    """
+def parse_from_raw(datastores, logfile, start_time, no_tar=False, no_api=False):
+    '''
     Extracts all job listing html files from a number of given directories, sorts them by year and
     appends them to (or creates) tarfiles to reduce storage space, parses the html for each job to
     extract a number of useful data parameters and appends these to (or creates) a database of these
@@ -87,9 +89,8 @@ def parse_from_raw(datastores, logfile, start_time, no_tar=False):
 
     :return: nothing, creates or appends to a sqlite3 instance and tarfiles for each year present in
         the data
-    """
+    '''
 
-    #flndate = start_time.strftime("%Y-%m-%d")
     logdate = start_time.strftime('%d/%m/%Y %H.%M.%S')
 
     # Set up dict to store dfs of raw data
@@ -106,7 +107,7 @@ def parse_from_raw(datastores, logfile, start_time, no_tar=False):
         logfile.write(f'There were {len(list_of_adverts)} job adverts reviewed in the sample.\n \n')
 
         # Parse jobs html and read into df
-        parsed_df = parse_jobs.read_html(list_of_adverts)
+        parsed_df = parse_jobs.read_html(list_of_adverts, use_api=not no_api)
 
         if parsed_df.empty:
             continue
@@ -193,16 +194,6 @@ def parse_from_raw(datastores, logfile, start_time, no_tar=False):
         prev_records = prev_files[0].tolist()
     except KeyError:
         prev_records = []
-
-    ####### DEBUG #######
-
-    with open('loc_strings.txt','w') as f:
-        u = df['location_string'].unique()
-        for i in u:
-            if i is not None:
-                f.write(i+'\n')
-
-    #######       #######
 
     db_df = df.loc[~df['filename'].isin(prev_records)]
     db_df = db_df.replace('', None)

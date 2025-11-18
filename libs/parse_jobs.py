@@ -438,7 +438,7 @@ def find_location_string(advert):
     return loc
 
 
-def read_html(list_of_adverts):
+def read_html(list_of_adverts, use_api=False):
     """
     Goes through the list of job adverts in the DATASTORE dir, extracts the data I need and adds it
     to a df
@@ -531,7 +531,7 @@ def read_html(list_of_adverts):
             'region',
             'country',
         ]
-        df = api.enhance_location_data(df)
+        df = api.enhance_location_data(df, use_api=use_api)
     except ValueError:
         print('--- folder is empty, skipping ---')
 

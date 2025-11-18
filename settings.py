@@ -19,6 +19,7 @@ BASE_URL = "http://www.jobs.ac.uk"
 # The full URL used to access the current list of job listings
 FULL_URL = f"{BASE_URL}/search/?keywords=*&sort=re&s=1&pageSize={NUM_JOBS}"
 
+# A list of 'locations' to screen out when processing job location information
 IGNORE_LOCATIONS = (
     'hybrid',
     'remote',
@@ -35,6 +36,10 @@ IGNORE_LOCATIONS = (
     'online',
 )
 
+# === API settings ===
+
+# The API key to use to poll the Google Places API
+GOOGLE_PLACES_KEY = 'none'
 
 # === Local storage settings ===
 

@@ -46,6 +46,7 @@ def main(run_time, logfile):
         logfile=logfile,
         start_time=run_time,
         no_tar='--no-tar' in in_args,
+        no_api='--no-api' in in_args,
     )
 
     logfile.close()

@@ -45,20 +45,32 @@ def enhance_location_data(df, use_api=False):
     """)
     conn.commit()
 
+    global places
     places = pd.DataFrame(conn.execute("SELECT * FROM places").fetchall())
+    places.rename(columns={0:'id',1:'location_key',2:'city',3:'region',4:'country',5:'latitude',6:'longitude'}, inplace=True)
+    print(places)
 
     def get_loc_data(row):
         # The get_loc_data function, which parses location data, checks if information on that
         # location exists locally and, of not, calls the Places API to fetch info
 
+        # Use Places as global (bad practice, I know...) to allow it to modify as loops progress
+        global places
+
         # Check if the location already has some enriched data
         location_key = ', '.join([k for k in row[['city','region','country']] if k is not None])
-        if location_key == '':
-            location_key = row['location_string']
+        if not location_key:
+            if row['location_string']:
+                location_key = row['location_string']
+            else:
+                # If there's still no data, fail safely and leave enriched columns as none
+                return (None, None, None, None, None)
+
+        location_key = location_key.lower().strip()
 
         # Check if place already parsed in the db and, if so, return stored values to avoid
         # unnecessary API calls
-        if not(places.empty) and (location_key in places['location_key']):
+        if not(places.empty) and (location_key in places['location_key'].values):
             stored_loc = places[places['location_key']==location_key]
             outputs = (
                 stored_loc['city'].values[0],
@@ -81,7 +93,38 @@ def enhance_location_data(df, use_api=False):
             return outputs
 
         # API calling as a last resort
-        raise NotImplementedError
+        pass
+
+        ##### debug #####
+        city=row['city']
+        region=row['region']
+        country=row['country']
+        latitude=0
+        longitude=0
+        ######## ########
+
+        new_place = pd.DataFrame({
+            'id': None,
+            'location_key': [location_key],
+            'city': [city],
+            'region': [region],
+            'country': [country],
+            'latitude': [latitude],
+            'longitude': [longitude]}
+        )
+
+        places=pd.concat([places,new_place])
+
+        outputs = (
+            city,
+            region,
+            country,
+            latitude,
+            longitude,
+        )
+
+        return outputs
+
 
     df[[
         'city',
@@ -90,5 +133,14 @@ def enhance_location_data(df, use_api=False):
         'latitude',
         'longitude',
     ]]=df.apply(get_loc_data, axis=1, result_type='expand')
+
+    print(places)
+
+    # Drop all values with an ID before pushing back to the DB (as these ones were already
+    # processed by SQL and hence are already present in the db
+
+    places = places[places['id'].isna()]
+    places.to_sql('places', conn, if_exists='append', index=False)
+    conn.commit()
 
     return df

@@ -5,6 +5,8 @@
 A collection of settings which can be altered to change the function of the pipeline.
 """
 
+import os
+
 # === Scraper settings ===
 
 # The repository where the scraped job html files will be stored
@@ -38,8 +40,10 @@ IGNORE_LOCATIONS = (
 
 # === API settings ===
 
+GOOGLE_GEOCODE_URL = 'https://maps.googleapis.com/maps/api/geocode/json'
+
 # The API key to use to poll the Google Places API
-GOOGLE_PLACES_KEY = 'none'
+GOOGLE_PLACES_KEY = os.environ.get('PLACES_API_KEY', None)
 
 # === Local storage settings ===
 

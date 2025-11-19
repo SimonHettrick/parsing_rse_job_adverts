@@ -47,3 +47,4 @@ data_products/
 pipeline_log*.txt
 tarred_jobs/
 loc_strings.txt
+development.env

@@ -3,6 +3,7 @@
 from wordcloud import WordCloud, STOPWORDS
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 import streamlit as st
 
 import settings
@@ -102,4 +103,18 @@ def histogram(df, field, groupother=False):
     else:
         fig = px.histogram(df, x=field)
 
+    st.plotly_chart(fig)
+
+def density_map(df):
+
+    places_tally = df.groupby(['latitude','longitude']).size().reset_index().rename(columns={0:'count'})
+
+    fig = go.Figure(go.Densitymap(
+        lat=places_tally['latitude'],
+        lon=places_tally['longitude'],
+        z=places_tally['count'],
+        radius=10,
+        colorscale='viridis',
+    ))
+    fig.update_layout(map_style="open-street-map", map_center_lon=-4, map_center_lat=55, map_zoom=4.2, width=1000, height=700)
     st.plotly_chart(fig)

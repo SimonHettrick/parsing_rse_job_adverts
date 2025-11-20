@@ -168,6 +168,7 @@ with col_view:
         'Title Word Cloud',
         'Description Word Cloud',
         'Organisation Word Cloud',
+        'Density Map',
     ])
 
     components.download_button(db)
@@ -207,3 +208,6 @@ elif view == 'Jobs per Year':
 
 elif view == 'Jobs per Contract Type':
     components.histogram(db, 'contract_type', groupother=True)
+
+elif view == 'Density Map':
+    components.density_map(db)

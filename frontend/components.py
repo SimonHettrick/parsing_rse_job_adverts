@@ -1,6 +1,7 @@
 '''Definitions for components (e.g. plots, tables) for the frontend streamlit app'''
 
 from wordcloud import WordCloud, STOPWORDS
+import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -117,6 +118,8 @@ def density_map(df):
         lon=p_tally['longitude'],
         z=p_tally['jobs'],
         radius=25,
+        zmax=500,
+        zmin=1,
         colorscale='viridis',
     ))
     fig.update_layout(

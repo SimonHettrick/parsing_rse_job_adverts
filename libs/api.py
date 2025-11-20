@@ -125,6 +125,8 @@ def enhance_location_data(df, use_api=False):
         latitude=None
         longitude=None
 
+
+
         if not response.json()['results']:
             # If no results found, return the default info but remember this place to prevent
             # calling the API on it next time it comes up

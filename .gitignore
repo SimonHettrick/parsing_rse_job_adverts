@@ -49,3 +49,4 @@ tarred_jobs/
 loc_strings.txt
 development.env
 backup_dbs/
+api_calls.list

@@ -19,14 +19,6 @@ st.set_page_config(page_title='RSE Job Tracker', layout='wide', initial_sidebar_
 #  the included function is cell-wise and hence extremely slow.
 st.elements.lib.pandas_styler_utils._use_display_values = lambda df, style: df.astype(str)
 
-# Title text
-image_column, header_column = st.columns([1, 20], gap='small')
-
-with header_column:
-    st.header('RSE Job Tracker')
-
-st.divider()
-
 # === Pre-run Setup ===
 
 @st.cache_resource
@@ -56,6 +48,10 @@ def extract_data():
     return df
 
 db = extract_data()
+
+dates=db['placed_on'].dropna()
+mindate = min(dates).to_pydatetime()
+maxdate = max(dates).to_pydatetime()
 
 # === Set up page layout ===
 
@@ -144,7 +140,7 @@ if n_filters > 0:
             )
 
             # Check filter value isn't either blank or placeholder
-            if filter_value not in ('--Select--', '', None):
+            if filter_value not in ('--Select--', '', None) and filter_type:
 
                 # Collect a boolean array for records with filter_fields equal to filter_value
                 filter_bools = db[filter_field].str.contains(filter_value, case=False)
@@ -156,6 +152,18 @@ if n_filters > 0:
                 # Filter the dataframe
                 db = db.loc[filter_bools]
 
+
+with filter_area:
+    date_range = st.slider(
+        value=(mindate,maxdate),
+        label='Date Range',
+        min_value=mindate,
+        max_value=maxdate,
+    )
+
+# Filter by dates
+db = db[(db['placed_on'] >= date_range[0]) & (db['placed_on'] <= date_range[1])]
+
 # === Plot / Display options: ===
 
 # Create dropdown box for data project, collect user's input
@@ -163,12 +171,12 @@ with col_view:
     view = st.selectbox('Data Product:', [
         '--Select--',
         'General Stats',
+        'Density Map',
         'Jobs per Year',
         'Jobs per Contract Type',
         'Title Word Cloud',
         'Description Word Cloud',
         'Organisation Word Cloud',
-        'Density Map',
     ])
 
     components.download_button(db)

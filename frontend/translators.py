@@ -22,6 +22,8 @@ bad_filters = [
     'source',
     'description_parsed',
     'year',
+    'latitude',
+    'longitude',
 ]
 
 # Dicts to translate from human-readable column names to backend column ids (and vice versa)

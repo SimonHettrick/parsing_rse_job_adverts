@@ -106,15 +106,25 @@ def histogram(df, field, groupother=False):
     st.plotly_chart(fig)
 
 def density_map(df):
+    '''Create a density map showing how jobs are geographically distributed'''
 
-    places_tally = df.groupby(['latitude','longitude']).size().reset_index().rename(columns={0:'count'})
+    df = df.dropna(subset=['latitude','longitude'])
+
+    p_tally = df.groupby(['latitude','longitude']).size().reset_index().rename(columns={0:'jobs'})
 
     fig = go.Figure(go.Densitymap(
-        lat=places_tally['latitude'],
-        lon=places_tally['longitude'],
-        z=places_tally['count'],
-        radius=10,
+        lat=p_tally['latitude'],
+        lon=p_tally['longitude'],
+        z=p_tally['jobs'],
+        radius=25,
         colorscale='viridis',
     ))
-    fig.update_layout(map_style="open-street-map", map_center_lon=-4, map_center_lat=55, map_zoom=4.2, width=1000, height=700)
+    fig.update_layout(
+        map_style='open-street-map',
+        map_center_lon=-4,
+        map_center_lat=55,
+        map_zoom=4.2,
+        width=1000,
+        height=700
+    )
     st.plotly_chart(fig)

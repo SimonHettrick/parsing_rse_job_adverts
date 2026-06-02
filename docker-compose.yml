@@ -1,0 +1,19 @@
+services:
+    nginx:
+        restart: always
+        image: nginx:1.23-alpine
+        ports:
+            - 80:80
+        volumes:
+            - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf
+        depends_on:
+            - server
+
+    # Web server
+    server:
+        restart: unless-stopped
+        build:
+            context: .
+            dockerfile: ./docker/Dockerfile
+        ports:
+            - 8501:8501

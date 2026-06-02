@@ -2,6 +2,10 @@
 
 Bit of a complex background to this one. I set it up to look at RSE jobs from the jobs.ac.uk data, then expanded it to look at any type of jobs for some policy work I was doing for the Hidden REF. It's now mainly used for RSE jobs again.
 
+# Where can I use this
+
+As standard, the RSE Job Adverts Streamlit app is hosted on srv04851 and accessible on port 8501.  Access the web portal at [http://srv04851.soton.ac.uk:8501](http://srv04851.soton.ac.uk:8501) .
+
 # What's what
 
 The job parser consists of two main components:

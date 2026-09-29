@@ -11,6 +11,8 @@ services:
 
     # Web server
     server:
+        volumes:
+            - ./db:/app/db:ro
         restart: unless-stopped
         build:
             context: .

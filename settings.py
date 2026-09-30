@@ -54,10 +54,12 @@ GOOGLE_PLACES_KEY = os.environ.get('PLACES_API_KEY', None)
 # === Local storage settings ===
 
 # A list of directories to look for job html files in
-DEFAULT_DATASTORES = ['./job_ads/soton/', './job_ads/edin/', SCRAPE_DATASTORE]
+# DEFAULT_DATASTORES = ['./job_ads/soton/', './job_ads/edin/', SCRAPE_DATASTORE]
+DEFAULT_DATASTORES = [SCRAPE_DATASTORE]
 
 # A list of directories to look for job html files in when running with the --test flag
-TEST_DATASTORES = ['./test_job_ads/soton/', './test_job_ads/edin/', SCRAPE_DATASTORE]
+# TEST_DATASTORES = ['./test_job_ads/soton/', './test_job_ads/edin/', SCRAPE_DATASTORE]
+TEST_DATASTORES = [SCRAPE_DATASTORE]
 
 # The path to the location where tarfiles are to be created
 TARPATH = './tarred_jobs/'

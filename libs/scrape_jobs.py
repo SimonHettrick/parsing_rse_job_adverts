@@ -198,30 +198,50 @@ def scrape():
     print(f'Check if the input folder exists: {settings.SCRAPE_DATASTORE}')
     make_sure_path_exists(settings.SCRAPE_DATASTORE)
 
-    # Start the job collection
-    print('Getting the search page')
-    page = get_page(settings.FULL_URL)
-    data = transform_txt_in_bs4(page)
-
-    jobs_list = split_by_results(data)
-    print('Start to download new jobs')
+    # Running counter of how many new jobs have been scraped
     n = 0
-    for job in jobs_list:
-        job_rel_url = extract_job_url(job)
-        try:
-            jobid, _, job_full_url = split_info_from_job_url(job_rel_url)
-        except ValueError:
-            print(f'Skipping job url {settings.BASE_URL+job_rel_url} as it is badly formed')
-            continue
-        # Check if the jobid is not parsed yet
-        if to_download(settings.SCRAPE_DATASTORE, jobid) is True:
-            #print('Job id: {}'.format(jobid))
-            job_page = get_page(job_full_url)
-            job_data = transform_txt_in_bs4(job_page)
-            data_to_record = new_extract_ads_info(job_data)
-            if data_to_record is None:
-                data_to_record = extract_ads_info(job_data)
-            record_data(settings.SCRAPE_DATASTORE, jobid, data_to_record)
-            n+=1
-            #print('Jobs downloaded: {}'.format(n))
+
+    # Running counter of how many total jobs have been scraped
+    t = 0
+
+    # Running counter of current results page
+    p = 0
+
+    while t < settings.NUM_JOBS:
+
+        # Start the job collection
+        page = get_page(settings.FRONTPAGE_URL+f"&startIndex={p*settings.JOBS_PER_PAGE + 1}")
+        data = transform_txt_in_bs4(page)
+
+        jobs_list = split_by_results(data)
+
+        print(f'Start to download new jobs: Page {p + 1}')
+
+        jobs_on_page = 0
+        for job in jobs_list:
+            jobs_on_page+=1
+            job_rel_url = extract_job_url(job)
+            try:
+                jobid, _, job_full_url = split_info_from_job_url(job_rel_url)
+            except ValueError:
+                print(f'Skipping job url {settings.BASE_URL+job_rel_url} as it is badly formed')
+                continue
+            # Check if the jobid is not parsed yet
+            if to_download(settings.SCRAPE_DATASTORE, jobid) is True:
+                #print('Job id: {}'.format(jobid))
+                job_page = get_page(job_full_url)
+                job_data = transform_txt_in_bs4(job_page)
+                data_to_record = new_extract_ads_info(job_data)
+                if data_to_record is None:
+                    data_to_record = extract_ads_info(job_data)
+                record_data(settings.SCRAPE_DATASTORE, jobid, data_to_record)
+                n+=1
+
+        # If page was empty, assume we have seen all pages with content
+        if jobs_on_page == 0:
+            break
+
+        t+=jobs_on_page
+        p+=1
+
     print(f'Jobs downloaded: {n}')

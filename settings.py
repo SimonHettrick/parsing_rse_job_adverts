@@ -18,8 +18,14 @@ NUM_JOBS = 10000
 # The base URL of the job repository to be scraped
 BASE_URL = "http://www.jobs.ac.uk"
 
+# The number of results per page on the jobs.ac.uk results page.
+# IMPORTANT: This is currently fixed at 25 due to an URL parsing
+# issue on the jobs.ac.uk page, do not change this number without
+# verifying behaviour of the website!
+JOBS_PER_PAGE = 25
+
 # The full URL used to access the current list of job listings
-FULL_URL = f"{BASE_URL}/search/?keywords=*&sort=re&s=1&pageSize={NUM_JOBS}"
+FRONTPAGE_URL = f"{BASE_URL}/search/?keywords=%2A&sortOrder=0&pageSize={JOBS_PER_PAGE}"
 
 # A list of 'locations' to screen out when processing job location information
 IGNORE_LOCATIONS = (

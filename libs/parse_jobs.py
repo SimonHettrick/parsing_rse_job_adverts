@@ -505,7 +505,7 @@ def read_html(list_of_adverts, use_api=False):
         big_data_list.append(data)
 
         # Not drowning but waving output for my sanity
-        print('Processed ' + str(sanity_counter) + ' jobs', end='\r')
+        # print('Processed ' + str(sanity_counter) + ' jobs', end='\r')
 
     df = pd.DataFrame.from_records(big_data_list)
 

@@ -215,7 +215,7 @@ def scrape():
 
         jobs_list = split_by_results(data)
 
-        print(f'Start to download new jobs: Page {p + 1}')
+        #print(f'Start to download new jobs: Page {p + 1}')
 
         jobs_on_page = 0
         for job in jobs_list:
@@ -244,4 +244,12 @@ def scrape():
         t+=jobs_on_page
         p+=1
 
-    print(f'Jobs downloaded: {n}')
+    print(f'Total Jobs Scraped {t}')
+    if t<125:
+        print('WARNING: Total Jobs Scraped Unusually Low!')
+    print(f'Total Pages Scraped From {p}')
+    if p<5:
+        print('WARNING: Total Pages Scraped From Unusually Low!')
+    print(f'Total New Jobs Downloaded: {n}')
+    if n<25:
+        print('WARNING: Total New Jobs Unusually Low!')
